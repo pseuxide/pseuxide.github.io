@@ -4,10 +4,22 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-Hi, welcome to my blog!
 
-I'm a Japanese web engineer which having fun play around windows low level and a bit of kernel programming when i feel like i want.
+## welcome to my blog!
 
-My English proficiency is rather low yet I'll be striving to post some work i do or writeups in English down the road.
+As a hobbyist low-level programmer, having my own blog allows me to document each step of my reverse engineering journey without losing my way.
 
-Hit me up through email or whatever if you are a reverse engineer :)
+Here's a list of topics you might encounter on this blog:
+
+```md
+Reverse engineering
+Game hacking
+Windows user mode low level programming
+Windows kernel driver development
+Hypervisor
+```
+{: file='Things I find attractive'}
+
+Some of these are subjects I'm actively diving into, while others are still on my to-do list.
+
+Hit me up via email or X or pretty much anything if you are a reverse engineer.

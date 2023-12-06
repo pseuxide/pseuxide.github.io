@@ -190,7 +190,7 @@ By default all `.asm` files are not included in the visual studio project when i
 4. Change `Item Type` to `Microsoft Macro Assembler`.
 ![asm_property](https://github.com/pseuxide/call_cpuid_asm/assets/33578715/d753a2cc-1072-46f4-9ff5-b8f736aacfa4){: w="700" .normal}
 
-Now your assembly file is included in compile process and good to go.
+Now your asm file is included in compile process and good to go.
 
 ## Conclusion
 
@@ -199,6 +199,6 @@ Now your assembly file is included in compile process and good to go.
 As you saw, it's actually not that overwhelming to use asm with C++.
 
 I believe using asm in conjunction with C++ has your code more flexible.
-Moreover, it makes you feel like you're gigachad despite of how actually you are.
+Moreover, it makes you feel like you're a gigachad despite of how actually you are.
 
 Thanks for reading my article. :)

@@ -22,4 +22,4 @@ Hypervisor
 
 Some of these are subjects I'm actively diving into, while others are still on my to-do list.
 
-Hit me up via email or X or pretty much anything if you are a reverse engineer.
+I used to take notes on my github repo or gist, but it's clear to store them as a blog form.

@@ -12,9 +12,9 @@ image:
 
 ## Introduction
 
-Since this is the first article of my blog, i start with relatively very simple subject.
+Since this is the first article of my blog, I start with relatively very simple subject.
 
-So in this post i'll be talking about how you can call functions defined in independent assembly file from C++.
+So in this post I'll be talking about how you can call functions defined in independent assembly file from C++.
 
 ## Target reader
 
@@ -36,10 +36,10 @@ __asm {
 }
 ```
 
-Yeah I initially thought of it.
+Well I initially thought of it.
 
 However, lord MSVC compiler doesn't allow us to levarage inline assembly with x64 target architecture.
-And one of its work arounds is using `.asm` file while i guess you can pull it off with shell code too yet it might get more complicated.
+And one of its work arounds is using `.asm` file while I guess you can pull it off with shell code too yet it might get more complicated.
 
 so the expected environment is:
 - Windows 10
@@ -48,7 +48,7 @@ so the expected environment is:
 
 ## How to do it?
 
-I have suitable repository for this topic so i'll pick up code from there as a reference.
+I have suitable repository for this topic so I'll pick up code from there as a reference.
 [pseuxide/call_cpuid_asm](https://github.com/pseuxide/call_cpuid_asm/tree/master){:target='_blank'}
 
 ### C++ side
@@ -112,7 +112,7 @@ I'll omit main function cuz it's self-explanatory.
 
 Let's move onto asm side. First create `get_cpu_type.asm` file.
 
-Here i'll explain how to write simple asm in intel syntax for MSVC using this sample code.
+Here I'll explain how to write simple asm in intel syntax for MSVC using this sample code.
 
 ```nasm
 public get_cpu_type
@@ -153,7 +153,7 @@ get_cpu_type endp
 ```
 
 This is the function definition. It should start with `FUNCTION_NAME proc public` and end with `FUNCTION_NAME endp`
-> This `public` statement is also optional because of the reason i mentioned prior.
+> This `public` statement is also optional because of the reason I mentioned prior.
 {: .prompt-tip }
 
 ```nasm

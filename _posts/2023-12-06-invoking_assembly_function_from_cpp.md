@@ -1,12 +1,12 @@
 ---
-title: Calling assembly from x64 C++ program
+title: Invoking assembly function from x64 C++ program
 date: 2023-12-06 14:06:00 +0900
 categories: [Low level]
 tags: [cpp, asm]     # TAG names should always be lowercase
-img_path: /assets/img/posts/calling_assembly_from_cpp/
+img_path: /assets/img/posts/invoking_assembly_function_from_cpp/
 image:
   path: header.png
-  lqip: header_lqip.png
+  lqip: header.png
   alt: Responsive rendering of Chirpy theme on multiple devices.
 ---
 
@@ -36,10 +36,10 @@ __asm {
 }
 ```
 
-Well I initially thought of it.
+Well I initially thought of it too.
 
 However, lord MSVC compiler doesn't allow us to levarage inline assembly with x64 target architecture.
-And one of its work arounds is using `.asm` file while I guess you can pull it off with shell code too yet it might get more complicated.
+And one of the work arounds of it is using `.asm` file while I guess you can pull it off with shell code too yet it might get more complicated.
 
 so the expected environment is:
 - Windows 10
@@ -87,7 +87,7 @@ Here's the line by line explanation.
 extern "C" void get_cpu_type(char* sys_type);
 ```
 
-This is the forward declaration of `get_cpu_type` function which we'll define later in asm file.
+Firstly you need the forward declaration of `get_cpu_type` function which we'll define later in asm file.
 
 ```cpp
 std::string get_cpu_type_string()
@@ -99,14 +99,14 @@ std::string get_cpu_type_string()
 }
 ```
 
-Since the asm function expects buffer as param in our case so we create wrapper function not to mess up the main function.
+Secondly setting up wrapper function. Since the asm function expects buffer as param in our case, so we create a wrapper not to mess up the main function.
 
 The buffer size is supposed to be 12 chars + null terminator = 13.
 The `get_cpu_type` function will populate the buffer with string and we manually adding null terminator at last and returning it as std::string.
 
 Don't worry once you see the asm function and come back here, you'll get it.
 
-I'll omit main function cuz it's self-explanatory.
+Lastly you've got main function which I'll omit because it's self-explanatory.
 
 ### Assembly side
 

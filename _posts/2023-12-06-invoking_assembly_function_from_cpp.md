@@ -6,7 +6,7 @@ tags: [cpp, asm]     # TAG names should always be lowercase
 img_path: /assets/img/posts/invoking_assembly_function_from_cpp/
 image:
   path: header.png
-  lqip: header.png
+  lqip: header_lqip.png
   alt: Responsive rendering of Chirpy theme on multiple devices.
 ---
 

@@ -137,8 +137,8 @@ public get_cpu_type
 ```
 
 This statement marks the get_cpu_type function global making other files can access this function.
-> However, in terms of MASM (Microsoft Macro Assembler) which we gonna use later to compile assembly marks every functions as public by default so actually you dont need to explicitly mark them as public tbh.
-{: .prompt-tip }
+> However, in terms of MASM (Microsoft Macro Assembler) which we gonna use later to compile assembly marks every functions as public by default so technically you dont have to explicitly mark them as public tbh.
+{: .prompt-info }
 
 ```nasm
 .code _text
@@ -154,7 +154,7 @@ get_cpu_type endp
 
 This is the function definition. It should start with `FUNCTION_NAME proc public` and end with `FUNCTION_NAME endp`
 > This `public` statement is also optional because of the reason I mentioned prior.
-{: .prompt-tip }
+{: .prompt-info }
 
 ```nasm
 mov     rax, 0
@@ -166,7 +166,7 @@ mov     dword ptr [rdi+8], ecx
 ret
 ```
 
-This is the function body. It basically loading buffer address to `rdi`` and populating the buffer. Each `ebx`, `edx`, `ecx` registers holds byte representations of ascii character, so these 3 lines assigning them into buffer.
+This is the function body. It's basically loading buffer address to `rdi` and populating the buffer. Each `ebx`, `edx`, `ecx` registers holds byte representations of ascii characters.
 
 Importantly, you must end the function with `ret` instruction of course to get back to return address.
 

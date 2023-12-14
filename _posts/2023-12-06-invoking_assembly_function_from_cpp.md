@@ -2,12 +2,12 @@
 title: Invoking assembly function from x64 C++ program
 date: 2023-12-06 14:06:00 +0900
 categories: [Low level]
-tags: [cpp, asm]     # TAG names should always be lowercase
+tags: [C++, asm]     # TAG names should always be lowercase
 img_path: /assets/img/posts/invoking_assembly_function_from_cpp/
 image:
   path: header.png
   lqip: header.svg
-  alt: Responsive rendering of Chirpy theme on multiple devices.
+  alt: header
 ---
 
 ## Introduction

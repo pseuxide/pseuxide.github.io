@@ -22,23 +22,25 @@ The content will be
 
 I've also read public articles about Unity hacking and tried some myself, but there are parts that I'm still not sure how they work. Apporogies
 
-I recommend to see this post and [pseuxide/lethal_to_company](https://github.com/pseuxide/lethal_to_company) side by side so that you can catch up with code that i may not mention in the article.
+I recommend to see this post and [pseuxide/lethal_to_company](https://github.com/pseuxide/lethal_to_company) side by side so that you can catch up with code that I may not mention in the article.
 
 ### Introduction to Lethal Company
 
 In this post, I'll take the game [Lethal Company](https://store.steampowered.com/app/1966720/Lethal_Company/) as an target. (I enjoyed it recently with my friends)
 
-It's worth knowing a bit about the target game before reading this article, let me briefly introduce you to it. This sentences are quorted from its Steam page.
+It's worth knowing a bit about the target game before reading this article, let me briefly introduce you to it.
+
+This sentences are quorted from its Steam page.
 
 > You are a contracted worker for the Company. Your job is to collect scrap from abandoned, industrialized moons to meet the Company's profit quota. You can use the cash you earn to travel to new moons with higher risks and rewards--or you can buy fancy suits and decorations for your ship. Experience nature, scanning any creature you find to add them to your bestiary. Explore the wondrous outdoors and rummage through their derelict, steel and concrete underbellies. Just never miss the quota.
 
-Basically it's a FPS game where you collect scraps in the planets that monsters are crawling around.
+Basically it's a FPS game where you collect scraps in the planets that monsters are crawling around and sell them to your boss.
 
 ## Target reader
 
 Those who
 - me in the future
-- can barely write C#
+- can understand nature of C#
 
 ## main content
 
@@ -50,15 +52,15 @@ It almost feels like you're using dynamic library of the game lol.
 
 Right off the bat, create a C# Class Library project. Remember we're making internal mod.
 
-Then, right click **References** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
+Then, right click **Dependencies** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
 
-In the folder, there should be bunch of .dlls yet the ones we're interested in is what's called `Assenbly-CSharp.dll`, `Assembly-CSharp-firstpass.dll` and all the files starts their name with `Unity` and `UnityEngine`.
+In the folder, there should be bunch of .dlls yet the ones we're interested in is what's called `Assenbly-CSharp.dll`, `Assembly-CSharp-firstpass.dll` and all the files starts their name with `Unity` and `UnityEngine`. I know it's tremendous amount, but add them all anyway.
 
 By now we added all we need which allow us to use all the fun stuff inside the game. The magic word `using UnityEngine;` gives us the power from now on.
 
 ### dllmain
 
-To perform work after get injected define what's equivalent to dllmain in C++ haha.
+To perform its functionality after injection, define what's equivalent to dllmain in C++.
 
 ```cs
 using UnityEngine;
@@ -113,6 +115,8 @@ private Camera camera;
 I'll show you the esp function and how I update the entity real time later but let me show you about Lethal Company's in-game entities `GrabbableObject[]` and `EnemyAI[]` first. Let's fire up dnSpy and take a look at in-game objects statically.
 
 ### esp function
+
+This is the esp function and some other utilities it uses.
 
 ```cs
 using UnityEngine;
@@ -174,7 +178,64 @@ namespace lethal_to_company
 }
 ```
 
-This is the esp function and some other utilities it uses.
-In terms of world to screen mechanism, usually `camera.WorldToScreenPoint` which is predefined by Unity is used among game hackers, but somehow this game's WorldToScreenPoint function doesnt produce correct result. Frankly speaking I got stuck due to this a few days.
+The only interesting thing here is about `world_to_screen` func. In terms of world to screen mechanism, people typically use `camera.WorldToScreenPoint` which is predefined by Unity, but somewhat this game's WorldToScreenPoint function produces a bit off result from expecting coordinates. Frankly speaking I got stuck a few days due to this.
 
-https://www.unknowncheats.me/forum/3921191-post32.html
+Fortunately, I found [this post](https://www.unknowncheats.me/forum/3921191-post32.html) on UC forum saying 'use `camera.WorldToScreenViewportPoint` instead'. `WorldToScreenViewportPoint` is similar to `WorldToScreenPoint`, but it produces normalized coordinates on the screen. Official document says
+
+> The bottom-left of the camera is (0,0); the top-right is (1,1). The z position is in world units from the camera.
+
+Note that z axis refers to the depth from the camera. If z axis is positive value it means the object is in front of you and while not it's behind you.
+
+Anyways, in case of this case `WorldToScreenViewportPoint` works as expected as opposed to `WorldToScreenPoint`, so multiply screen width and height to fit your resolution and BOOM it's done.
+
+### How I update the entity
+
+The main concept is given by [this Guided Hacking post](https://guidedhacking.com/threads/how-to-hack-unity-mono-injection-codestage-anticheat.17915/)
+
+Apparently it's not performant way but frankly I dont care now.
+`FindObjectsOfType` try retrieve objects of given type at runtime. Use this method is easiest way.
+
+```
+using UnityEngine;
+
+namespace lethal_to_company
+{
+  partial class hack : MonoBehaviour
+  {
+    // Setup a timer and a set time to reset to
+    private readonly float entity_update_interval = 5f;
+    private float entity_update_timer;
+
+    private void EntityUpdate()
+    {
+      if (entity_update_timer <= 0f)
+      {
+        enemies = FindObjectsOfType<EnemyAI>();
+        grabbable_objects = FindObjectsOfType<GrabbableObject>();
+
+        // You have to open menu to get local player lol
+        local_player = HUDManager.Instance.localPlayer;
+
+        assign_camera();
+
+        clear_update_timer();
+      }
+
+      entity_update_timer -= Time.deltaTime;
+    }
+
+    private void clear_update_timer()
+    {
+      entity_update_timer = entity_update_interval;
+    }
+    private void assign_camera()
+    {
+      camera = local_player.gameplayCamera;
+    }
+  }
+}
+```
+
+## Conclusion
+
+Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono modding once in my life. Indeed it was absolutely different experience from what I've been done with C++ and fun.

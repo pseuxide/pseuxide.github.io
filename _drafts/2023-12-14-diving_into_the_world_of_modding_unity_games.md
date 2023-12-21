@@ -119,6 +119,12 @@ I'll show you the esp function and how I update the entity real time later but l
 
 ![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e)
 
+![HUD manager](https://github.com/pseuxide/lethal_to_company/assets/33578715/ccdf7df2-6cad-406d-ab38-c46231a509b4)
+
+![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720)
+
+![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4)
+
 ### esp function
 
 This is the esp function and some other utilities it uses.

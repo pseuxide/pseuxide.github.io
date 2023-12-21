@@ -238,4 +238,6 @@ namespace lethal_to_company
 
 ## Conclusion
 
+![footer](footer.png)
+
 Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono modding once in my life. Indeed it was absolutely different experience from what I've been done with C++ and fun.

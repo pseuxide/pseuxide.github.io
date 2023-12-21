@@ -52,7 +52,8 @@ It almost feels like you're using dynamic library of the game lol.
 
 Right off the bat, create a C# Class Library project. Remember we're making internal mod.
 
-Then, right click **Dependencies** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
+Then, right click **References** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
+![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b)
 
 In the folder, there should be bunch of .dlls yet the ones we're interested in is what's called `Assenbly-CSharp.dll`, `Assembly-CSharp-firstpass.dll` and all the files starts their name with `Unity` and `UnityEngine`. I know it's tremendous amount, but add them all anyway.
 
@@ -113,6 +114,10 @@ private Camera camera;
 ```
 
 I'll show you the esp function and how I update the entity real time later but let me show you about Lethal Company's in-game entities `GrabbableObject[]` and `EnemyAI[]` first. Let's fire up dnSpy and take a look at in-game objects statically.
+
+![enemy search result](https://github.com/pseuxide/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d)
+
+![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e)
 
 ### esp function
 

@@ -12,12 +12,15 @@ image:
 
 ## Introduction
 
-Hi there, today I'm going to talk about how I tackled a Unity game, specifically compiled with Mono, for the first time to make ESP and surprised how it was easy to accomplish.
+In this post I'll be talking about how I tackled a Unity game, specifically compiled with Mono, for the first time to make Wall hack and surprised how it was easy to accomplish in comparison to the motherfucker, Unreal Engine.
 
-The content will be
+The contents go on in such order
+
 - Include game's files to our project to access them
 - Code of loader class and hack class
 - Take a look at game assemblies using dnSpy
+- How I update the game entities in real time
+- Wall hack a.k.a ESP code
 - How to inject our dll into Mono game
 
 I've also read public articles about Unity hacking and tried some myself, but there are parts that I'm still not sure how they work. Apporogies
@@ -184,7 +187,7 @@ namespace lethal_to_company
 }
 ```
 
-### esp function
+### Wall hack a.k.a ESP function
 
 This is the esp function and some other utilities it uses.
 

@@ -53,7 +53,7 @@ It almost feels like you're using dynamic library of the game lol.
 Right off the bat, create a C# Class Library project. Remember we're making internal mod.
 
 Then, right click **References** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
-![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b)
+![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b){: w="700" .normal}
 
 In the folder, there should be bunch of .dlls yet the ones we're interested in is what's called `Assenbly-CSharp.dll`, `Assembly-CSharp-firstpass.dll` and all the files starts their name with `Unity` and `UnityEngine`. I know it's tremendous amount, but add them all anyway.
 
@@ -115,15 +115,74 @@ private Camera camera;
 
 I'll show you the esp function and how I update the entity real time later but let me show you about Lethal Company's in-game entities `GrabbableObject[]` and `EnemyAI[]` first. Let's fire up dnSpy and take a look at in-game objects statically.
 
+Hit **Edit -> Search Assembly** to search text from entire Unity assemblies of the game (I believe it technically means every managed dlls in same folder).
+When I look up enemy one class stands out, `EnemyAI` which sounds great. Click it and look at overview.
 ![enemy search result](https://github.com/pseuxide/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d)
 
-![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e)
+Indeed, the convincing symbol names are found in the class such as `SetEnemyStunned` or `this.isEnemyDead`.
 
-![HUD manager](https://github.com/pseuxide/lethal_to_company/assets/33578715/ccdf7df2-6cad-406d-ab38-c46231a509b4)
+![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e){: w="700" .normal}
+
+Ok now let's search for local player. When you seach `LocalPlayer`, 2 pure localplayer text come up which seems both of them are member variable of manager class. So basically you can obtain local player by `HUDManager.localPlayer` or `SoundManager.localPlayer`.
 
 ![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720)
 
+Although they say `Camera.main` in your script let you get usable camera object, this game doesn't act like so. Neither `Camera.main` nor `Camera.current` work but instead local player has camera attached called gameplayCamera which sounds promissing.
+
+After some test I found this camera is a real camera used in the game so I went with this.
+
 ![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4)
+
+### How I update the entity
+
+In the last section we've found entities we need (except grabbable object but it's similar anyways).
+Now we have to update entity's info within a each few frame.
+
+The main method is introduced by [this Guided Hacking post](https://guidedhacking.com/threads/how-to-hack-unity-mono-injection-codestage-anticheat.17915/). Apparently it's not performant way but frankly speaking I dont care now.
+
+Let's be lazy and take the easiest way, the function `FindObjectsOfType` automatically look up every instances of the given type at runtime.
+But, in case of local player, we get by `HUDManager.Instance.localPlayer`.
+
+```cs
+using UnityEngine;
+
+namespace lethal_to_company
+{
+  partial class hack : MonoBehaviour
+  {
+    // Setup a timer and a set time to reset to
+    private readonly float entity_update_interval = 5f;
+    private float entity_update_timer;
+
+    private void EntityUpdate()
+    {
+      if (entity_update_timer <= 0f)
+      {
+        enemies = FindObjectsOfType<EnemyAI>();
+        grabbable_objects = FindObjectsOfType<GrabbableObject>();
+
+        // You have to open menu to get local player lol
+        local_player = HUDManager.Instance.localPlayer;
+
+        assign_camera();
+
+        clear_update_timer();
+      }
+
+      entity_update_timer -= Time.deltaTime;
+    }
+
+    private void clear_update_timer()
+    {
+      entity_update_timer = entity_update_interval;
+    }
+    private void assign_camera()
+    {
+      camera = local_player.gameplayCamera;
+    }
+  }
+}
+```
 
 ### esp function
 
@@ -199,56 +258,9 @@ Note that z axis refers to the depth from the camera. If z axis is positive valu
 
 Anyways, in case of this case `WorldToScreenViewportPoint` works as expected as opposed to `WorldToScreenPoint`, so multiply screen width and height to fit your resolution and BOOM it's done.
 
-### How I update the entity
-
-The main concept is given by [this Guided Hacking post](https://guidedhacking.com/threads/how-to-hack-unity-mono-injection-codestage-anticheat.17915/)
-
-Apparently it's not performant way but frankly I dont care now.
-`FindObjectsOfType` try retrieve objects of given type at runtime. Use this method is easiest way.
-
-```
-using UnityEngine;
-
-namespace lethal_to_company
-{
-  partial class hack : MonoBehaviour
-  {
-    // Setup a timer and a set time to reset to
-    private readonly float entity_update_interval = 5f;
-    private float entity_update_timer;
-
-    private void EntityUpdate()
-    {
-      if (entity_update_timer <= 0f)
-      {
-        enemies = FindObjectsOfType<EnemyAI>();
-        grabbable_objects = FindObjectsOfType<GrabbableObject>();
-
-        // You have to open menu to get local player lol
-        local_player = HUDManager.Instance.localPlayer;
-
-        assign_camera();
-
-        clear_update_timer();
-      }
-
-      entity_update_timer -= Time.deltaTime;
-    }
-
-    private void clear_update_timer()
-    {
-      entity_update_timer = entity_update_interval;
-    }
-    private void assign_camera()
-    {
-      camera = local_player.gameplayCamera;
-    }
-  }
-}
-```
 
 ## Conclusion
 
 ![footer](footer.png)
 
-Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono modding once in my life. Indeed it was absolutely different experience from what I've been done with C++ and fun.
+Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono modding once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I modify game's source code directly.

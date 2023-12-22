@@ -1,9 +1,9 @@
 ---
-title: Diving into the world of modding Unity games
+title: Exploring the fundamentals of hacking Unity games
 date: 2023-12-22 12:00:00 +0900
 categories: [Low level, game hacking]
 tags: [csharp]
-img_path: /assets/img/posts/diving_into_the_world_of_modding_unity_games/
+img_path: /assets/img/posts/exploring_the_fundamentals_of_hacking_unity_games/
 image:
   path: header.png
   lqip: header.svg
@@ -45,15 +45,15 @@ Those who
 - me in the future
 - can understand nature of C#
 
-## main content
+## The development path I've followed
 
-Why it's a cinch to develop a mod of Unity? Essentially, by using C# as a language you're allowed to use all resources the game uses in your mod code like classes, functions even member variables too.
+Why it's a cinch to develop a hack of Unity? Essentially, by using C# as a language you're allowed to use all resources the game uses in your hack code like classes, functions even member variables too.
 
 It almost feels like you're using dynamic library of the game lol.
 
 ### Setting up Visual Studio project
 
-Right off the bat, create a C# Class Library project. Remember we're making internal mod.
+Right off the bat, create a C# Class Library project. Remember we're making internal hack.
 
 Then, right click **References** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
 ![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b){: w="700" .normal}
@@ -62,7 +62,7 @@ In the folder, there should be bunch of .dlls yet the ones we're interested in i
 
 By now we added all we need which allow us to use all the fun stuff inside the game. The magic word `using UnityEngine;` gives us the power from now on.
 
-### dllmain
+### dllmain you know
 
 To perform its functionality after injection, define what's equivalent to dllmain in C++.
 
@@ -266,4 +266,4 @@ Anyways, in case of this case `WorldToScreenViewportPoint` works as expected as 
 
 ![footer](footer.png)
 
-Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono modding once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I modify game's source code directly.
+Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono hacking once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I modify game's source code directly.

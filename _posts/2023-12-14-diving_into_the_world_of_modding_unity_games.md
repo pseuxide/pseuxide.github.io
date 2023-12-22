@@ -1,6 +1,6 @@
 ---
 title: Diving into the world of modding Unity games
-date: 2023-12-14 12:00:00 +0900
+date: 2023-12-22 12:00:00 +0900
 categories: [Low level, game hacking]
 tags: [csharp]
 img_path: /assets/img/posts/diving_into_the_world_of_modding_unity_games/
@@ -117,21 +117,21 @@ I'll show you the esp function and how I update the entity real time later but l
 
 Hit **Edit -> Search Assembly** to search text from entire Unity assemblies of the game (I believe it technically means every managed dlls in same folder).
 When I look up enemy one class stands out, `EnemyAI` which sounds great. Click it and look at overview.
-![enemy search result](https://github.com/pseuxide/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d)
+![enemy search result](https://github.com/pseuxide/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d){: .normal}
 
 Indeed, the convincing symbol names are found in the class such as `SetEnemyStunned` or `this.isEnemyDead`.
 
-![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e){: w="700" .normal}
+![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e){: .normal}
 
 Ok now let's search for local player. When you seach `LocalPlayer`, 2 pure localplayer text come up which seems both of them are member variable of manager class. So basically you can obtain local player by `HUDManager.localPlayer` or `SoundManager.localPlayer`.
 
-![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720)
+![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720){: .normal}
 
 Although they say `Camera.main` in your script let you get usable camera object, this game doesn't act like so. Neither `Camera.main` nor `Camera.current` work but instead local player has camera attached called gameplayCamera which sounds promissing.
 
 After some test I found this camera is a real camera used in the game so I went with this.
 
-![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4)
+![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4){: .normal}
 
 ### How I update the entity
 

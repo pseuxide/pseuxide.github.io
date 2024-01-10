@@ -27,7 +27,7 @@ I've also read public articles about Unity hacking and tried some myself, but th
 
 I recommend to see this post and [pseuxide/lethal_to_company](https://github.com/pseuxide/lethal_to_company) side by side so that you can catch up with code that I may not mention in the article.
 
-### Introduction to Lethal Company
+## Introduction to Lethal Company
 
 In this post, I'll take the game [Lethal Company](https://store.steampowered.com/app/1966720/Lethal_Company/) as an target. (I enjoyed it recently with my friends)
 
@@ -45,16 +45,12 @@ Those who
 - me in the future
 - can understand nature of C#
 
-## The development path I've followed
+## Setting up Visual Studio project
 
-Why it's a cinch to develop a hack of Unity? Essentially, by using C# as a language you're allowed to use all resources the game uses in your hack code like classes, functions even member variables too.
-
+Why it's a cinch to develop a hack of Unity? Essentially, by using C# as a language you're allowed to use all resources which the game uses in your hack code like classes, functions even member variables too as long as you configure your Visual Studio right.
 It almost feels like you're using dynamic library of the game lol.
 
-### Setting up Visual Studio project
-
 Right off the bat, create a C# Class Library project. Remember we're making internal hack.
-
 Then, right click **References** on the solution explorer and click **Add Reference** -> **Browse** and go to root directory of the Lethal Company and find folder called `Managed` which typically located in root/GAMENAME_Data folder.
 ![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b){: w="700" .normal}
 
@@ -62,7 +58,7 @@ In the folder, there should be bunch of .dlls yet the ones we're interested in i
 
 By now we added all we need which allow us to use all the fun stuff inside the game. The magic word `using UnityEngine;` gives us the power from now on.
 
-### dllmain you know
+## Probably an equivalent to dllmain... if you ask me
 
 To perform its functionality after injection, define what's equivalent to dllmain in C++.
 
@@ -93,7 +89,7 @@ It's making GameObject, and adding component which is the body of our hack.
 Remember the namespace, class name and function name will be required when we inject the produced dll. In our case, `lethal_to_company`, `loader`, `load`.
 
 
-### hack code body
+## Hack code body
 
 Apparently OnGUI function is Unity's rendering function which runs at the end of the each frame and we override this function to render our esp.
 
@@ -136,7 +132,7 @@ After some test I found this camera is a real camera used in the game so I went 
 
 ![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4){: .normal}
 
-### How I update the entity
+## How I update entities
 
 In the last section we've found entities we need (except grabbable object but it's similar anyways).
 Now we have to update entity's info within a each few frame.
@@ -187,7 +183,7 @@ namespace lethal_to_company
 }
 ```
 
-### Wall hack a.k.a ESP function
+## Wall hack a.k.a ESP function
 
 This is the esp function and some other utilities it uses.
 
@@ -250,9 +246,7 @@ namespace lethal_to_company
   }
 }
 ```
-
 The only interesting thing here is about `world_to_screen` func. In terms of world to screen mechanism, people typically use `camera.WorldToScreenPoint` which is predefined by Unity, but somewhat this game's WorldToScreenPoint function produces a bit off result from expecting coordinates. Frankly speaking I got stuck a few days due to this.
-
 Fortunately, I found [this post](https://www.unknowncheats.me/forum/3921191-post32.html) on UC forum saying 'use `camera.WorldToScreenViewportPoint` instead'. `WorldToScreenViewportPoint` is similar to `WorldToScreenPoint`, but it produces normalized coordinates on the screen. Official document says
 
 > The bottom-left of the camera is (0,0); the top-right is (1,1). The z position is in world units from the camera.
@@ -260,6 +254,46 @@ Fortunately, I found [this post](https://www.unknowncheats.me/forum/3921191-post
 Note that z axis refers to the depth from the camera. If z axis is positive value it means the object is in front of you and while not it's behind you.
 
 Anyways, in case of this case `WorldToScreenViewportPoint` works as expected as opposed to `WorldToScreenPoint`, so multiply screen width and height to fit your resolution and BOOM it's done.
+
+```cs
+private Vector3 world_to_screen(Vector3 world)
+{
+  Vector3 screen = camera.WorldToViewportPoint(world);
+
+  screen.x *= Screen.width;
+  screen.y *= Screen.height;
+
+  screen.y = Screen.height - screen.y;
+
+  return screen;
+}
+```
+
+
+# Inject the dll
+
+Once you built the dll, last thing you'd do is injecting it to the game.
+Because the dll is managed, you have to use correct injector, not the one you've been using with C++ hack.
+There're some options out there of which injector to use, but the best one is [SharpMonoInjector](https://github.com/warbler/SharpMonoInjector/releases).
+Others doesn't work well but this one works nicely as of December 2023.
+
+When you open it up, all the input must be blank.
+So let's click "Refresh" button and let it find processes running with mono.
+> If you're opening processes like Valorant or dnSpy which have some kind of "exclusive protection" when you press "Refresh", SharpMonoInjector will terminates immediately. Therefore make sure you close every those apps in advance.
+{: .prompt-warning }
+
+Secondly, click "..." to select dll that you want to inject, in my case it's called "lethal_to_company.dll".
+Once you select the dll file it will automagically recognize the namespace you encapsulated your code in.
+
+Lastly you fill the Class name and Method name which I as mentioned earlier part, are `loader` and `load`. 
+There you go, by pressing "Inject" button at the bottom, it will do its job after that.
+You dont have to care about left pane of the injector UI when you inject.
+
+![SharpMonoInjector](https://github.com/pseuxide/lethal_to_company/assets/33578715/74f91c58-354a-41ef-8c87-5b28ade033da){: .normal}
+
+The final result looks like this.
+
+![hack visual](https://github.com/pseuxide/lethal_to_company/assets/33578715/3cba1b1e-26a8-43ab-98f6-0a1f57900019){: .normal}
 
 
 ## Conclusion

@@ -78,7 +78,7 @@
           color: inherit;
         }
 
-        > div:first-child {
+        >div:first-child {
           display: block;
           white-space: nowrap;
           overflow: hidden;
@@ -87,7 +87,9 @@
       }
     }
   }
-} /* #post-list */
+}
+
+/* #post-list */
 
 .pagination {
   color: var(--text-color);
@@ -131,8 +133,12 @@
         color: rgba(108, 117, 125, 0.57);
       }
     }
-  } /* .page-item */
-} /* .pagination */
+  }
+
+  /* .page-item */
+}
+
+/* .pagination */
 
 /* Tablet */
 @media all and (min-width: 768px) {
@@ -198,5 +204,7 @@
     .page-index {
       display: none;
     }
-  } /* .pagination */
+  }
+
+  /* .pagination */
 }

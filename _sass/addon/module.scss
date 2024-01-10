@@ -16,7 +16,8 @@
     margin-bottom: 1.25rem;
 
     &:focus {
-      outline: none; /* avoid outline in Safari */
+      outline: none;
+      /* avoid outline in Safari */
     }
   }
 }
@@ -96,7 +97,7 @@
 }
 
 %img-caption {
-  + em {
+  +em {
     display: block;
     text-align: center;
     font-style: normal;

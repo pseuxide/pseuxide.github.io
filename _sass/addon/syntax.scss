@@ -7,6 +7,7 @@
 
 html {
   @media (prefers-color-scheme: light) {
+
     &:not([data-mode]),
     &[data-mode='light'] {
       @include light-syntax;
@@ -18,6 +19,7 @@ html {
   }
 
   @media (prefers-color-scheme: dark) {
+
     &:not([data-mode]),
     &[data-mode='dark'] {
       @include dark-syntax;
@@ -43,7 +45,8 @@ html {
 .highlighter-rouge {
   color: var(--highlighter-rouge-color);
   margin-top: 0.5rem;
-  margin-bottom: 1.2em; /* Override BS Inline-code style */
+  margin-bottom: 1.2em;
+  /* Override BS Inline-code style */
 }
 
 .highlight {
@@ -61,7 +64,8 @@ html {
     margin-bottom: 0;
     font-size: $code-font-size;
     line-height: 1.4rem;
-    word-wrap: normal; /* Fixed Safari overflow-x */
+    word-wrap: normal;
+    /* Fixed Safari overflow-x */
   }
 
   table {
@@ -77,8 +81,10 @@ html {
       }
 
       pre {
-        overflow: visible; /* Fixed iOS safari overflow-x */
-        word-break: normal; /* Fixed iOS safari linenos code break */
+        overflow: visible;
+        /* Fixed iOS safari overflow-x */
+        word-break: normal;
+        /* Fixed iOS safari linenos code break */
       }
     }
   }
@@ -92,7 +98,9 @@ html {
     -ms-user-select: none;
     user-select: none;
   }
-} /* .highlight */
+}
+
+/* .highlight */
 
 code {
   -webkit-hyphens: none;
@@ -115,12 +123,13 @@ code {
     padding: 0;
   }
 
-  a > &.highlighter-rouge {
-    padding-bottom: 0; /* show link's underlinke */
+  a>&.highlighter-rouge {
+    padding-bottom: 0;
+    /* show link's underlinke */
     color: inherit;
   }
 
-  a:hover > &.highlighter-rouge {
+  a:hover>&.highlighter-rouge {
     border-bottom: none;
   }
 
@@ -149,7 +158,7 @@ div[class^='language-'] {
 
   box-shadow: var(--language-border-color) 0 0 0 1px;
 
-  .content > & {
+  .content>& {
     @include ml-mr(-1rem);
 
     border-radius: 0;
@@ -163,6 +172,7 @@ div[class^='language-'] {
 
 /* Hide line numbers for default, console, and terminal code snippets */
 div {
+
   &.nolineno,
   &.language-plaintext,
   &.language-console,
@@ -203,9 +213,10 @@ div {
       }
     }
 
-    @at-root [file] #{&} > i {
+    @at-root [file] #{&}>i {
       position: relative;
-      top: 1px; /* center the file icon */
+      top: 1px;
+      /* center the file icon */
     }
 
     /* label text */
@@ -258,7 +269,7 @@ div {
 
 @media all and (min-width: 576px) {
   div[class^='language-'] {
-    .content > & {
+    .content>& {
       @include ml-mr(0);
 
       border-radius: $base-radius;
@@ -277,10 +288,8 @@ div {
         height: $code-dot-size;
         border-radius: 50%;
         background-color: var(--code-header-muted-color);
-        box-shadow: ($code-dot-size + $code-dot-gap) 0 0
-            var(--code-header-muted-color),
-          ($code-dot-size + $code-dot-gap) * 2 0 0
-            var(--code-header-muted-color);
+        box-shadow: ($code-dot-size + $code-dot-gap) 0 0 var(--code-header-muted-color),
+          ($code-dot-size + $code-dot-gap) * 2 0 0 var(--code-header-muted-color);
       }
 
       span {

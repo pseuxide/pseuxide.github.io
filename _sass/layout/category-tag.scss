@@ -9,7 +9,7 @@
 
 #page-category,
 #page-tag {
-  ul > li {
+  ul>li {
     line-height: 1.5rem;
     padding: 0.6rem 0;
 
@@ -27,7 +27,7 @@
     }
 
     /* post's title */
-    > a {
+    >a {
       @extend %no-bottom-border;
 
       font-size: 1.1rem;
@@ -36,11 +36,11 @@
 }
 
 /* tag icon */
-#page-tag h1 > i {
+#page-tag h1>i {
   font-size: 1.2rem;
 }
 
-#page-category h1 > i {
+#page-category h1>i {
   font-size: 1.25rem;
 }
 
@@ -50,19 +50,21 @@
   a:hover {
     @extend %link-hover;
 
-    margin-bottom: -1px; /* Avoid jumping */
+    margin-bottom: -1px;
+    /* Avoid jumping */
   }
 }
 
 @media all and (max-width: 576px) {
+
   #page-category,
   #page-tag {
-    ul > li {
+    ul>li {
       &::before {
         margin: 0 0.5rem;
       }
 
-      > a {
+      >a {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

@@ -7,7 +7,7 @@ img_path: /assets/img/posts/exploring_the_fundamentals_of_hacking_unity_games/
 image:
   path: header.png
   lqip: header.svg
-  alt: 
+  alt:
 ---
 
 ## Introduction
@@ -133,7 +133,7 @@ Ok EnemyAI's been found, then let's look for local player class. When you seach 
 ![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720){: .normal}
 _the localPlayer member in HUDManager class_
 
-Alright, now that you understand how to get the local player pointer, let's focus on the camera object. It's essential for calculating the object position for ESP. While it's commonly believed that `Camera.main` is the valid object used by many games, in this case, it's different. Neither `Camera.main` nor `Camera.current` are applicable. 
+Alright, now that you understand how to get the local player pointer, let's focus on the camera object. It's essential for calculating the object position for ESP. While it's commonly believed that `Camera.main` is the valid object used by many games, in this case, it's different. Neither `Camera.main` nor `Camera.current` are applicable.
 
 After some test I found that the local player has an attached Camera class named `gameplayCamera` which seems promising.
 Turns out this is a real camera used in the game.
@@ -284,7 +284,7 @@ So let's click "Refresh" button and let it find processes running with mono.
 Secondly, click "..." to select dll that you want to inject, in my case it's called "lethal_to_company.dll".
 Once you select the dll file it will automagically recognize the namespace you encapsulated your code in.
 
-Lastly you fill the Class name and Method name which I as mentioned earlier part, are `loader` and `load`. 
+Lastly you fill the Class name and Method name which I as mentioned earlier part, are `loader` and `load`.
 There you go, by pressing "Inject" button at the bottom, it will do its job after that.
 You dont have to care about left pane of the injector UI when you inject.
 
@@ -298,7 +298,5 @@ _resulting ESP. green indicates items and red indicates enemies_
 
 
 ## Conclusion
-
-![footer](footer.png)
 
 Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono hacking once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I modify game's source code directly.

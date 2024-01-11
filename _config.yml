@@ -18,9 +18,9 @@ timezone: Asia/Tokyo
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: pseuxide # the main title
+title: uneducated traversal # the main title
 
-tagline: personal secret note # it will display as the sub-title
+tagline: a reverse engineer's diary # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   pseuxide's tech blog

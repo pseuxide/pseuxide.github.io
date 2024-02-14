@@ -13,13 +13,14 @@ I work as a web engineer at day time, and do low-key reverse engineering at midn
 
 ## About this blog
 
-As a hobbyist low-level programmer, having my own blog allows me to document each step of my reverse engineering journey without losing my way.
+As a hobbyist engineer, having my own blog allows me to document each step of my reverse engineering journey without losing my way.
 
 Here's a list of topics you might encounter in this blog:
 
 ```md
 Reverse engineering
 Game hacking
+Web development
 Windows user mode low level programming
 Windows kernel driver development
 Hypervisor development

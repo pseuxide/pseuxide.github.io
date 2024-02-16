@@ -20,7 +20,7 @@ timezone: Asia/Tokyo
 
 title: uneducated traverser # the main title
 
-tagline: a reverse engineer's diary # it will display as the sub-title
+tagline: a novice engineer's diary # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   pseuxide's tech blog

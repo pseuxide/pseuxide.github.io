@@ -19,7 +19,7 @@ The corresponding repository introduced in this article is this: [pseuxide/docke
 
 ## initial idea: docker compose watch (turned out 2b slow)
 
-October 2023, [docker compose watch](https://docs.docker.com/compose/file-watch/) has been publicly released which allows docker compose to take action on specific file changes.
+October 2023, [docker compose watch](https://docs.docker.com/compose/file-watch/) has been publicly released which allows docker compose to take certain 3 actions on specific file changes.
 
 this is an example of how to configure your compose.yaml to enable docker compose watch
 

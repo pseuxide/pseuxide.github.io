@@ -199,15 +199,16 @@ The code below is the esp function and some other utilities it uses.
 - `distance` func calculates distance between 2 objects.
 - `esp` func draws box and line on your screen.
 
-The sole interesting function here is `world_to_screen`. In terms of world to screen mechanism, people typically use `camera.WorldToScreenPoint` function which is predefined by Unity, but somewhat this game's WorldToScreenPoint function produces a bit off result from expecting coordinates. Frankly speaking I got stuck a few days due to this.
+The sole function in which absurd things are going here is `world_to_screen`. In terms of world to screen mechanism, people typically use `camera.WorldToScreenPoint` function which is predefined by Unity, but somewhat this game's WorldToScreenPoint function produces a bit off result from expecting coordinates. The reason why it's being useless is because this game is purposely rendered at a very small resolution which is 860 x 520 for some reason. The game stretches its resolution to your window size I think for performance or to be look low poly game. Anyway this weird method turning WorldToScreenPoint function completely garbage.
 
-Fortunately, I found [this post](https://www.unknowncheats.me/forum/3921191-post32.html) on UC forum saying "use `camera.WorldToViewportPoint` instead". `WorldToViewportPoint` is similar to `WorldToScreenPoint`, but it produces normalized coordinates on the screen. Official document says
+Fortunately, there's a function called `camera.WorldToViewportPoint` which produces normalized coordinates on the screen and return value in a range from 0 to 1. Official document states:
 
 > Transforms position from world space into viewport space. Viewport space is normalized and relative to the camera. The bottom-left of the camera is (0,0); the top-right is (1,1). The z position is in world units from the camera.
 
 Note that z axis refers to the depth from the camera. If z axis is positive value it means the object is in front of you and while not it's behind you.
 
 Anyways, for this game `WorldToViewportPoint` works well as opposed to `WorldToScreenPoint`. Don't forget to multiply screen width and height to fit your resolution.
+
 
 ```cs
 using UnityEngine;
@@ -299,4 +300,4 @@ _resulting ESP. green indicates items and red indicates enemies_
 
 ## Conclusion
 
-Honestly, I'm not gonna get along with C# any further. However I've been wanting to scratch the surface of Mono hacking once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I modify game's source code directly.
+Honestly, I might not be gonna get along with C# any further. However I've been wanting to scratch the surface of Mono hacking once in my life. Indeed it was absolutely fresh experience from what I've been done with C++ and fun to manipulate game as if I'm modifying game's source code directly.

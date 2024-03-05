@@ -274,12 +274,12 @@ namespace lethal_to_company
 
 Once you built the dll, last thing you'd do is injecting it to the game.
 Because the dll is managed, you have to use correct injector, not the one you've been using with C++ hack.
-There're some options out there of which injector to use, but the best one is [SharpMonoInjector](https://github.com/warbler/SharpMonoInjector/releases).
-Others doesn't work well but this one works nicely as of December 2023.
+There're several options out there of which injector to use, but the best one is [SharpMonoInjector](https://github.com/warbler/SharpMonoInjector/releases).
+Others don't work well, but this one works nicely as of the date this article was written.
 
-When you open it up, all the input must be blank.
-So let's click "Refresh" button and let it find processes running with mono.
-> If you're opening processes like Valorant or dnSpy which have some kind of "exclusive protection" when you press "Refresh", SharpMonoInjector will terminates immediately. Therefore make sure you close every those apps in advance.
+When you open it up, all the input should be blank at first.
+Let's click "Refresh" button and let it find processes running under mono runtime.
+> If you're opening processes like Valorant or dnSpy which have kind of comprehensive protection, SharpMonoInjector will terminate immediately when you press "Refresh". Therefore make sure you close every those apps in advance.
 {: .prompt-warning }
 
 Secondly, click "..." to select dll that you want to inject, in my case it's called "lethal_to_company.dll".

@@ -139,8 +139,7 @@ FROM rust:${RUST_VERSION} AS dev
 
 # Use apt-get to update and install packages
 RUN apt-get update && apt-get install -y \
-    clang \
-    git
+    clang
 
 # install cargo-watch
 RUN cargo install cargo-watch
@@ -148,14 +147,12 @@ RUN cargo install cargo-watch
 # install format tool
 RUN rustup component add rustfmt
 
-RUN git clone https://github.com/rui314/mold.git \
-  && mkdir /mold/build \
-  && cd /mold/build \
-  && git checkout v2.4.0 \
-  && ../install-build-deps.sh \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/c++ .. \
-  && cmake --build . -j $(nproc) \
-  && cmake --install .
+RUN curl -L https://github.com/rui314/mold/releases/download/v2.30.0/mold-2.30.0-x86_64-linux.tar.gz -o mold-2.30.0-x86_64-linux.tar.gz \
+    && tar -zxvf mold-2.30.0-x86_64-linux.tar.gz \
+    && cd mold-2.30.0-x86_64-linux \
+    && cp -r bin/* /usr/local/bin/ \
+    && cp -r lib/* /usr/local/lib/ \
+    && ldconfig
 
 WORKDIR /app
 
@@ -165,7 +162,7 @@ COPY Cargo.toml Cargo.lock ./
 {: file='Dockerfile.dev'}
 
 Everythings ready, now you run `docker compose up --build -d` and you have full-automated Rust development environment. When you change files under `src` directory the server will be reloaded. In this specific example, because it's tiny, it took 2 seconds to be hot-reloaded which would've taken 5 or 6 seconds normally with lld.
-Only one drawback I would say is that it takes while to build the container when start up cuz it's building mold entirely from source code. I'm sure there's ways to lower the time tho.
+~~Only one drawback I would say is that it takes while to build the container when start up cuz it's building mold entirely from source code. I'm sure there's ways to lower the time tho.~~ I did a performance optimization, therefore it should be pretty quick.
 
 ## Conclusion
 

@@ -214,6 +214,8 @@ for seg in idautils.Segments():
 
 ![junk_subroutine](junk_subroutine.png)
 
+![call_garbage_subroutine](call_garbage_subroutine.png)
+
 ```py
 import idc
 import idautils

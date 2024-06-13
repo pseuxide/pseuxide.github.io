@@ -360,7 +360,7 @@ _main logic pseudocode before analyzed_
 
 The main factors that slow down your analysis are unnecessary conditions and byte offsets that are only read and never written to.
 
-Due to the opaque predicates, there are many if statements that always lead to the same result.
+Due to the opaque predicates, there are many `if` statements that always lead to the same result.
 Additionally, there are numerous byte_xxx values that always turn out to be the same.
 When I checked their references, they were always read-only, indicating they retain their original values from the disk.
 

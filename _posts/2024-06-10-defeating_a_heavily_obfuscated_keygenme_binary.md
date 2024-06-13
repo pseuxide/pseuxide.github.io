@@ -406,6 +406,9 @@ if any of them didnt match, it goes to bad branch.
 
 Congratulation, we've found the correct flag '**FLAG{a(#3_}**'.
 
+![flag](flag.png)
+_We've got a correct password!_
+
 ## Conclusion
 
 ![footer](footer.webp)

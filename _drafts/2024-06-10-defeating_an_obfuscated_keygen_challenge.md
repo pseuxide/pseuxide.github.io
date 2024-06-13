@@ -14,12 +14,17 @@ image:
 
 Wild products often have some kind of protection to protect their interectual property and it makes reverser's life harder.
 
-I found a very cool obfuscator called [obfus.h](https://github.com/DosX-dev/obfus.h) which published very recently and I thought this is a good time to tackle it and write an article!
+I found a very cool obfuscator called [obfus.h](https://github.com/DosX-dev/obfus.h) which published 2 month ago and I thought this is a good idea to tackle it and write an article!
 
 The program I'll be dealing with in this article is  [DosX's Obfuscation of C (7 kb crackme)](https://crackmes.one/crackme/66295a2aa562ef06c3b52e66).
 As per its description, this program is packed with UPX, but mutated by what's called [UPX patcher](https://github.com/DosX-dev/UPX-Patcher) and obfuscated with aforementioned obfuscator which, surprisingly, are made by the same author of keygenme. They're cool stuff so u should check it out!
 
-Even if the obfuscator is an open source software, I thought it's boring to look at and take advantage of the obfuscator, so I haven't take a look at them.
+Even if the obfuscator is an open source software, I thought it's boring to look at and take advantage of the obfuscator, so I haven't taken a look at them.
+
+## The program
+
+The program of the challenge is a simple keygenme. A Prompt "password >>>" shows up upon run.
+It print out "[-]wrong password!" when u type in random string.
 
 ## Unpack it first
 
@@ -60,37 +65,58 @@ I was like "It's a good timing to conduct a static analysis now", so fired up ID
 The image below is a part of the disassembly. I can say that every part of the code was similar to this which was bizzare. Let me explain why.
 
 ![first_look](first_look.png)
+_what it looked like initially_
 
 When I look around the assembly a bit, I immediately noticed a few weird points in the code.
 
-Firstly there're less subroutines than I expected, and instead there's just a big chunk of contiguous code. Also while subroutine invocations don't appear much yet tons of local address references was present instead. Therefore I wasn't able to view in neither graph mode nor pseudo code. That was a pain in the ass for reverser so I needed to come up with a solution.
+Firstly there're less subroutines than I expected, and instead there's just a big chunk of contiguous code. Also while subroutine invocations don't appear much yet tons of local address references was present instead. Therefore I wasn't able to view in neither graph mode nor pseudocode. That was a pain in the ass for reverser so I needed to come up with a solution.
 
 Secondly I see bunch of jmp instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the assembly. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
 
 Thirdly quite a few conditions of conditional-jmp instruction seems won't change on execution which leads the jmp instructions pointless. However because jmp is overused the control flow has became very messy to follow. It's a known obfuscation technique called **Opaque Predicates**.
 
-Lastly there're some subroutines that does nothing. Which offen refers to as **Junk code insertion**
+Lastly there're some instructions and even subroutines that doesn't do meaningful thing. Which offen refers to as **Junk code insertion**
 
-At this point I thoght this is gonna be tough night lol.
+At this point I sensed that this is gonna be a tough night lol.
 
 ## The plan
+Since I couldn't straight away converting code into subroutines, I had to go around and deal with obfuscations one by one.
+
+The impulsory measure to take first is fixing the `+1` jmp obfuscation. otherwise me and also hex-lays decompiler wouldn't understand what it's actually doing. Usually when you can recognize the pattern of instructions around the obfuscation, IDA's powerful scripting feature IDApython comes into very handy.
+
+Next, I see the stray bytes in middle of the code which also stopping IDA from making a subroutine. Not sure at this point but I anyway decided to nop out the bytes for now so that I can make code to subroutines. I used IDApython for this too.
+
+In terms of junk code insertion I only removed the junk subroutine calls for cleaning purpose.
+
+> So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the assembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
+{: .prompt-info }
 
 ## Taking over obfuscated jmps
 
-![jmp_manual_fix](jmp_manual_fix.png)
+Because I haven't seen this, I couldn't tell whether the jmp is broken or the instruction the jmp tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
 
-I thought at this point it's safe to nop out the isolated bytes to make it code too
-So the image below is the final result of deobfuscated jmp looks like.
+After a bit of research, the latter idea of my assumptions seems to be correct. Take a look at the image below. The jz is jumping to `near ptr loc_4099D2+1`. Therefore, undefining `0x4099D2` and make code back again from `0x4099D3` makes very much sense!
+
+![jmp_manual_fix](jmp_manual_fix.png)
+_LEFT: obfuscated, RIGHT: deobfuscated_
+
+At this point I thought it's kinda safe to nop out the isolated bytes at `0x4099D2` and convert it to code too. I assumed that it's unlikely to be referenced from other subroutines unless it's dynamically resolved cuz the byte doesnt have xref annotation. I was like 'I can come back fix it later if I was wrong anyway' lol.
+
+So the image below is the final result of deobfuscated jmp looks like. It's absolutely clean isn't it.
 
 ![jmp_further_manual_fix](jmp_further_manual_fix.png)
+_final result_
 
+I cant afford time of fixing tons of jmps manually, I decided to leverage the power of IDAPython to automatically detect and patch them all.
+
+Here's the code. I dont go into too deep about code so instead I put good amount of comments.
 
 ```py
 import idc
 import idaapi
 import idautils
 
-# checking if opcode is jmp
+# checking if mnemonic at ea is jmp or conditional jmp
 def is_jmp_insn(ea):
     insn = idaapi.insn_t()
     if not idaapi.decode_insn(insn, ea):
@@ -110,33 +136,43 @@ def is_jmp_with_plus_one(ea):
     disasm = idc.GetDisasm(ea)
     return "+1" in disasm
 
-# patch bytes to nop
+# patch bytes to nop (byte representation is 0x90)
 def patch_nop(ea):
     idc.patch_byte(ea, 0x90)
 
+# main deobfuscate function.
 def deob_mid_jmp(start_ea, end_ea):
+    # holds address already fixed to avoid double run at same address
     fixed_targets = set()
-    
+
     ea = start_ea
 
     while ea < end_ea:
         if is_jmp_insn(ea):
+            # getting jump destination's address
             target = idc.get_operand_value(ea, 0)
+            # destination is not invalid address? jump has +1?  destination hasn't been fixed yet?
             if target != idc.BADADDR and is_jmp_with_plus_one(ea) and target not in fixed_targets:
+                # undefine the destination-1 with DELIT_EXPAND flag. -1 cancels out +1
                 idc.del_items(target - 1, idaapi.DELIT_EXPAND)
+                # you need this to refresh internal ida database info
                 idaapi.auto_wait()
+                # sometimes undefining doesnt done correctly so do it again
                 if not idc.GetDisasm(target - 1).startswith("db "):
                     idc.del_items(target - 1, idaapi.DELIT_EXPAND)
                     idaapi.auto_wait()
-                
+
+                # patching isolated byte
                 patch_nop(target - 1)
 
+                # converting undefined bytes into code
                 if idc.create_insn(target - 1):
                     fixed_targets.add(target)
                 else:
                     print(f"Failed to create instruction at {hex(target)}")
         ea = idc.next_head(ea, end_ea)
 
+# .dosx sections are scattered around so u have to iterate over all segments and apply to all .dosx
 for seg in idautils.Segments():
     seg_name = idc.get_segm_name(seg)
     if seg_name and seg_name == ".dosx":
@@ -146,16 +182,32 @@ for seg in idautils.Segments():
 ```
 {: file='jmp_deobfuscator.py'}
 
-## reconstruct subroutines
+After running this script all the jmps are correctly fixed and cleaned up. Now let's deobfuscate even further!
 
+## Reconstruct grieved subroutines
 
+So when I look around the assembly I've found a lot of place which looks like an assembly prologue. But somehow IDA didn't get to mark it as a subroutine.
 ![prologue](prologue.png)
+_the stack setup looks promising to me_
+
+One message showed up when I pressed `p` on prologue.
 
 `.dosx:00402263: The function has undefined instruction/data at the specified address.`
 
-![garbage_bytes](garbage_bytes.png)
+That's right, the stray bytes are in the middle of the instruction I'm sure this is also to annoy reversers.
 
-![subroutine_made](subroutine_made.png)
+![garbage_bytes](garbage_bytes.png)
+_isolated bytes are inserted like this_
+
+After nopping out every stray byts in the subroutine-looking code and then I successfully made a subroutine. The thing is... it's ridiculously ginormous lol. I realized how the control flow obfuscation is disgusting.
+
+![control_flow](control_flow.png)
+_I was like what the hell??_
+
+Anyway I automated this process too using IDApython. Here's the code.
+
+> I had to make sure I won't mess up the big chunk of bytes in `.dosx` section which is stored and referenced from other code. so I meticulously pick up the bytes up to 4 in middle of the code. 4 is just a cap I set based on its pattern.
+{: .prompt-tip }
 
 ```py
 import idc
@@ -172,9 +224,11 @@ def find_and_nop_dbs(start_ea, end_ea):
             db_start_ea = ea
             count = 0
             db_start = ea
+            # loop until it goes out of db group or count reaches 5
             while ea < end_ea and idc.GetDisasm(ea).startswith('db') and count < 5:
                 count += 1
                 ea += 1
+            # count is lte 4?  db group is surrounded by non-db and non-dd instructions?
             if count <= 4 and not idc.GetDisasm(db_start_ea - 1).startswith('db') and not idc.GetDisasm(db_start_ea - 1).startswith('dd') and not idc.GetDisasm(ea + 1).startswith('dd'): # making sure it's not a part of a string or stored data that will be used
                 for addr in range(db_start, ea):
                     patch_nop(addr)
@@ -187,12 +241,14 @@ def convert_to_subroutine(start_ea, end_ea):
     find_and_nop_dbs(start_ea, end_ea)
     ea = start_ea
     while ea < end_ea:
+        # looking for prologue
         if (idc.print_insn_mnem(ea) == "push" and idc.print_operand(ea, 0) == "ebp" and
             idc.print_insn_mnem(idc.next_head(ea, end_ea)) == "mov" and
             idc.print_operand(idc.next_head(ea, end_ea), 0) == "ebp" and
             idc.print_operand(idc.next_head(ea, end_ea), 1) == "esp" and
             idc.print_insn_mnem(idc.next_head(idc.next_head(ea, end_ea), end_ea)) == "sub" and
             idc.print_operand(idc.next_head(idc.next_head(ea, end_ea), end_ea), 0) == "esp"):
+            # convert to subroutine at the head of prologue
             idc.add_func(ea)
             ea = idc.next_head(idc.next_head(idc.next_head(ea, end_ea), end_ea), end_ea)
         else:
@@ -208,13 +264,31 @@ for seg in idautils.Segments():
 {: file='convert_subroutine.py'}
 
 
-![control_flow](control_flow.png)
 
 ## removing junk subroutines
 
+Lastly since I spotted some pointless subroutines such as the image below, I wrote its removal code.
+Funny enough, not only its contents are only nops, this particular subroutine doesn't even setting up the stack lol.
+
 ![junk_subroutine](junk_subroutine.png)
+_junk subroutine that does nothing_
+
+It was fairly easy to find a commodity of the invocation code.
+
+1. Pushing a value onto the stack (0x0040910F)
+2. Calling subroutine (0x00409110)
+3. Smashing the stack (0x00409115)
 
 ![call_garbage_subroutine](call_garbage_subroutine.png)
+_how an invocation of garbage subroutine looks like_
+
+Because the calling conventions of the subroutines are `__cdecl`, the stack cleanup is caller's responsibility. It's piece of cake to nullify the subroutine when u dont have to care about stack corruption XD.
+
+Just nop out the all bytes calling the subroutine!
+
+
+> I was too lazy to make it the best code. I hardcoded the function's effective address and simply searching them up.
+{: .prompt-tip }
 
 ```py
 import idc
@@ -250,6 +324,10 @@ for seg in idautils.Segments():
 {: file='remove_junk_subroutine_call.py'}
 
 ## Take a look at keygen
+
+Now least deobfuscation has been done. I can see graph view and pseudocode of main components now so it's a great timing to have a look at actual keygen logic.
+
+Of course I reached for strings first. Recognizing where it's used helps me so much on where to reverse engineer.
 
 ![where_message_is_used](where_message_is_used.png)
 

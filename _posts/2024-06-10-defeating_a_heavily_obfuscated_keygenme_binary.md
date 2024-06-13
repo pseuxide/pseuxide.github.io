@@ -23,6 +23,10 @@ They're impressive, and you should definitely check them out!
 
 Even though the obfuscator is open-source software, I thought it would be boring to just peek at its code and take advantage of it, so I haven't looked at it.
 
+## Target reader
+
+- people wanna know the basic process of deobfuscation
+
 ## The program
 
 The program of the challenge is a simple keygenme. A Prompt "password >>>" shows up upon run.
@@ -106,7 +110,7 @@ Therefore, undefining `0x4099D2` and make code back again from `0x4099D3` makes 
 ![jmp_manual_fix](jmp_manual_fix.png)
 _LEFT: obfuscated, RIGHT: deobfuscated_
 
-At this point I thought it's kinda safe to nop out the isolated bytes at `0x4099D2` and convert it to code too. I assumed that it's unlikely to be referenced from other subroutines unless it's dynamically resolved cuz the byte doesnt have xref annotation. I was like 'I can come back fix it later if I was wrong anyway' lol.
+At this point, I thought it was fairly safe to nop out the isolated bytes at 0x4099D2 and convert them to code as well. I assumed it was unlikely to be referenced by other subroutines unless dynamically resolved, since the byte didn't have a cross-reference annotation. I figured, 'If I find any suspicious subroutine dynamically resolving and referencing the byte, I can always fix it later.'
 
 So the image below is the final result of deobfuscated jmp looks like. It's absolutely clean isn't it.
 
@@ -116,7 +120,7 @@ _final result_
 I cant afford time of fixing tons of jmps manually, I decided to leverage the power of IDAPython to automatically detect and patch them all.
 
 Here's the code.
-I dont go into too deep about code so instead I put good amount of comments.
+I dont go into too deep about code here instead I put good amount of comments for readers.
 
 ```py
 import idc

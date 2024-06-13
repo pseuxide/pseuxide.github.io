@@ -42,10 +42,9 @@ In short, it's a FPS game where you collect scraps in the planets that monsters 
 ## Target reader
 
 Those who
-- me in the future
 - wanna know about unity hack
 
-## Setting up Visual Studio project
+## [+] Setting up Visual Studio project
 
 Why it's a cinch to develop a hack of Unity? Essentially, by using C# as a language you're allowed to use all resources which the game uses in your hack code like classes, functions even member variables too as long as you configure your Visual Studio right.
 It almost feels like you're using dynamic library of the game lol.
@@ -61,7 +60,7 @@ _References window after added dlls mentioned above_
 
 By now we added all we need which allow us to use all the fun stuff inside the game. The magic word `using UnityEngine;` gives us the power from now on.
 
-## Probably an equivalent to dllmain... if you ask me
+## [+] Probably an equivalent to dllmain... if you ask me
 
 To perform its functionality after injection, define what's equivalent to dllmain in C++.
 Following code is making GameObject, and adding component which is the body of our hack.
@@ -92,7 +91,7 @@ namespace lethal_to_company
 
 
 
-## Hack code body
+## [+] Hack code body
 
 Apparently OnGUI function is Unity's rendering function which runs at the end of the each frame and we override this function to render our esp.
 
@@ -141,7 +140,7 @@ Turns out this is a real camera used in the game.
 ![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4){: .normal}
 _gameplayCamera class in the PlayerControllerB class (class of the local player)_
 
-## How I update entities
+## [+] How I update entities
 
 In the last section we've found 3 entities we need (except grabbable object but it's same tedious thing).
 Now we have to update entity's info within a each few frame to update position of the entity and such.
@@ -191,7 +190,7 @@ namespace lethal_to_company
 }
 ```
 
-## Wall hack a.k.a ESP function
+## [+] Wall hack a.k.a ESP function
 
 The code below is the esp function and some other utilities it uses.
 
@@ -270,7 +269,7 @@ namespace lethal_to_company
 }
 ```
 
-# Inject the dll
+# [+] Inject the dll
 
 Once you built the dll, last thing you'd do is injecting it to the game.
 Because the dll is managed, you have to use correct injector, not the one you've been using with C++ hack.

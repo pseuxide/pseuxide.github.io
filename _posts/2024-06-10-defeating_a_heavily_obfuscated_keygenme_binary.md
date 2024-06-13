@@ -1,30 +1,32 @@
 ---
-title: Defeating an obfuscated keygen challenge
+title: Defeating a heavily obfuscated keygenme binary
 date: 2024-06-10 21:00:00 +0900
 categories: [low level]
 tags: [asm, reverse-engineering]     # TAG names should always be lowercase
-img_path: /assets/img/posts/defeating_an_obfuscated_keygen_challenge/
+img_path: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/
 image:
-  path: header.png
-  lqip: /assets/img/posts/defeating_an_obfuscated_keygen_challenge/header.svg
+  path: header.webp
+  lqip: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/header.svg
   alt: header
 ---
 
 ## Introduction
 
-Wild products often have some kind of protection to protect their interectual property and it makes reverser's life harder.
+These days, many commercial products employ various protections to prevent reverse engineers from tampering with their intellectual property, making our job more challenging.
 
-I found a very cool obfuscator called [obfus.h](https://github.com/DosX-dev/obfus.h) which published 2 month ago and I thought this is a good idea to tackle it and write an article!
+This morning, I discovered a very cool obfuscator called [obfus.h](https://github.com/DosX-dev/obfus.h), which was just published two months ago. I thought it would be interesting to tackle it and write an article!
 
-The program I'll be dealing with in this article is  [DosX's Obfuscation of C (7 kb crackme)](https://crackmes.one/crackme/66295a2aa562ef06c3b52e66).
-As per its description, this program is packed with UPX, but mutated by what's called [UPX patcher](https://github.com/DosX-dev/UPX-Patcher) and obfuscated with aforementioned obfuscator which, surprisingly, are made by the same author of keygenme. They're cool stuff so u should check it out!
+The program I'll be analyzing in this article is [DosX's Obfuscation of C (7 kb crackme)](https://crackmes.one/crackme/66295a2aa562ef06c3b52e66).
+According to its description, this program is packed by UPX, which has been mutated using a tool called [UPX-Patcher](https://github.com/DosX-dev/UPX-Patcher) and obfuscated with the aforementioned obfuscator.
+Surprisingly, all these tools are made by the same author as the keygenme.
+They're impressive, and you should definitely check them out!
 
-Even if the obfuscator is an open source software, I thought it's boring to look at and take advantage of the obfuscator, so I haven't taken a look at them.
+Even though the obfuscator is open-source software, I thought it would be boring to just peek at its code and take advantage of it, so I haven't looked at it.
 
 ## The program
 
 The program of the challenge is a simple keygenme. A Prompt "password >>>" shows up upon run.
-It print out "[-]wrong password!" when u type in random string.
+It print out "[-] wrong password!" when u type in random string.
 
 ## Unpack it first
 
@@ -33,8 +35,9 @@ Right off the bat, let's check if it's actually packed. So the image below is th
 ![packed_strings](packed_strings.png)
 _strings view in debugger_
 
-Thanks to the challenges description, I already know it's packed by UPX. The patcher of UPX was well made and it prevents analyzing tools from recognizing UPX.
-But after a quick debugging on the stub, the overall unpacking process was not heavily modified...well I believe.
+Thanks to the challenges description, I already know it's packed by UPX.
+The patcher of UPX was well made and it prevents analysis tools from recognizing UPX.
+But after a quick debugging on its stub, the overall unpacking process was not likely modified...well I believe.
 
 Also once I looked at the sections, the binary has suspicious section called '.dosx' which has 0 raw-size but 118784 bytes of virtual size which indicates something will place data into it at runtime. If you have ever done UPX unpacking, you know... Yes, it's most likely what original UPX would do.
 By now I was assuming `.dosx` is the section that will store payload once unpacked, and the `.fish` is the one which is storing the packed payload, you can also confirm it from the high entropy `.fish` section has which is unordinary.
@@ -61,7 +64,8 @@ _dumping payload using Scylla_
 
 ## static analysis and locate obfuscation technique
 
-I was like "It's a good timing to conduct a static analysis now", so fired up IDA and loaded the dump.
+We've restored all the raw payload, so let's move on to static analysis, fired up IDA and loaded up the dump.
+
 The image below is a part of the disassembly. I can say that every part of the code was similar to this which was bizzare. Let me explain why.
 
 ![first_look](first_look.png)
@@ -69,7 +73,7 @@ _what it looked like initially_
 
 When I look around the assembly a bit, I immediately noticed a few weird points in the code.
 
-Firstly there're less subroutines than I expected, and instead there's just a big chunk of contiguous code. Also while subroutine invocations don't appear much yet tons of local address references was present instead. Therefore I wasn't able to view in neither graph mode nor pseudocode. That was a pain in the ass for reverser so I needed to come up with a solution.
+Firstly, there are fewer subroutines than expected, and the section is instead filled with a large chunk of contiguous code. Additionally, while there are not many subroutine invocations, there are numerous local address references. As a result, I couldn't view it in either graph mode or pseudocode. This was a major inconvenience for reverse engineering, so I had to find a solution.
 
 Secondly I see bunch of jmp instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the assembly. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
 
@@ -95,7 +99,9 @@ In terms of junk code insertion I only removed the junk subroutine calls for cle
 
 Because I haven't seen this, I couldn't tell whether the jmp is broken or the instruction the jmp tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
 
-After a bit of research, the latter idea of my assumptions seems to be correct. Take a look at the image below. The jz is jumping to `near ptr loc_4099D2+1`. Therefore, undefining `0x4099D2` and make code back again from `0x4099D3` makes very much sense!
+After a bit of research, the latter idea of my assumptions seems to be correct.
+Take a look at the image below. The jz is jumping to `near ptr loc_4099D2+1`.
+Therefore, undefining `0x4099D2` and make code back again from `0x4099D3` makes very much sense!
 
 ![jmp_manual_fix](jmp_manual_fix.png)
 _LEFT: obfuscated, RIGHT: deobfuscated_
@@ -109,7 +115,8 @@ _final result_
 
 I cant afford time of fixing tons of jmps manually, I decided to leverage the power of IDAPython to automatically detect and patch them all.
 
-Here's the code. I dont go into too deep about code so instead I put good amount of comments.
+Here's the code.
+I dont go into too deep about code so instead I put good amount of comments.
 
 ```py
 import idc
@@ -182,11 +189,14 @@ for seg in idautils.Segments():
 ```
 {: file='jmp_deobfuscator.py'}
 
-After running this script all the jmps are correctly fixed and cleaned up. Now let's deobfuscate even further!
+After running this script all the jmps are correctly fixed and cleaned up.
+Now let's deobfuscate even further!
 
 ## Reconstruct grieved subroutines
 
-So when I look around the assembly I've found a lot of place which looks like an assembly prologue. But somehow IDA didn't get to mark it as a subroutine.
+So when I look around the assembly I've found a lot of place which looks like an assembly prologue.
+But somehow IDA didn't get to mark it as a subroutine.
+
 ![prologue](prologue.png)
 _the stack setup looks promising to me_
 
@@ -199,12 +209,15 @@ That's right, the stray bytes are in the middle of the instruction I'm sure this
 ![garbage_bytes](garbage_bytes.png)
 _isolated bytes are inserted like this_
 
-After nopping out every stray byts in the subroutine-looking code and then I successfully made a subroutine. The thing is... it's ridiculously ginormous lol. I realized how the control flow obfuscation is disgusting.
+After nopping out every stray byts in the subroutine-looking code and then I successfully made a subroutine.
+At this point I was able to view in graph mode and pseudocode view! The thing is... it's ridiculously ginormous lol.
+I realized how the control flow obfuscation is disgusting.
 
 ![control_flow](control_flow.png)
 _I was like what the hell??_
 
-Anyway I automated this process too using IDApython. Here's the code.
+Anyway I automated this process too using IDApython.
+Here's the code.
 
 > I had to make sure I won't mess up the big chunk of bytes in `.dosx` section which is stored and referenced from other code. so I meticulously pick up the bytes up to 4 in middle of the code. 4 is just a cap I set based on its pattern.
 {: .prompt-tip }
@@ -263,9 +276,7 @@ for seg in idautils.Segments():
 ```
 {: file='convert_subroutine.py'}
 
-
-
-## removing junk subroutines
+## Removing pointless function calling
 
 Lastly since I spotted some pointless subroutines such as the image below, I wrote its removal code.
 Funny enough, not only its contents are only nops, this particular subroutine doesn't even setting up the stack lol.
@@ -282,7 +293,8 @@ It was fairly easy to find a commodity of the invocation code.
 ![call_garbage_subroutine](call_garbage_subroutine.png)
 _how an invocation of garbage subroutine looks like_
 
-Because the calling conventions of the subroutines are `__cdecl`, the stack cleanup is caller's responsibility. It's piece of cake to nullify the subroutine when u dont have to care about stack corruption XD.
+Because the calling conventions of the subroutines are `__cdecl`, the stack cleanup is caller's responsibility.
+It's piece of cake to nullify the subroutine when u dont have to care about stack corruption XD.
 
 Just nop out the all bytes calling the subroutine!
 
@@ -323,18 +335,78 @@ for seg in idautils.Segments():
 ```
 {: file='remove_junk_subroutine_call.py'}
 
-## Take a look at keygen
+## Take a look at keygen logic
 
-Now least deobfuscation has been done. I can see graph view and pseudocode of main components now so it's a great timing to have a look at actual keygen logic.
+Now least deobfuscation has been done.
+I can see graph view and pseudocode of main components now so it's a great timing to have a look at actual keygen logic.
 
-Of course I reached for strings first. Recognizing where it's used helps me so much on where to reverse engineer.
+Of course I reached for strings first.
+Recognizing where it's used helps me so much on where to reverse engineer.
+Fortunatelly correct and wrong password message was found and this is where it's used.
 
 ![where_message_is_used](where_message_is_used.png)
 
-![length_subroutine](length_subroutine.png)
-
-![analyzed_main](analyzed_main.png)
-
-![side_by_side](side_by_side.png)
+Most likely the password verification process starts around here. Because the subroutine is so huge because of the obfuscation I pressed F5 and tryna get hint from pseudocode.
+The pseudocode looked like this without any analysis.
+It's not straight forward at all, for example user input buffer is hidden in the pseudocode, but other than that not hard to get an idea of what it's doing.
 
 ![before_analyzed_main](before_analyzed_main.png)
+_main logic pseudocode before analyzed_
+
+The main factors that slow down your analysis are unnecessary conditions and byte offsets that are only read and never written to.
+
+Due to the opaque predicates, there are many if statements that always lead to the same result.
+Additionally, there are numerous byte_xxx values that always turn out to be the same.
+When I checked their references, they were always read-only, indicating they retain their original values from the disk.
+
+For example this is the length subroutine I spotted but it's not straight forward.
+The condition at line 17 and 18 is the only valid check and others are just garbage.
+This subroutine basically take the pointer of the user input and go through 1 by 1 and return when it hits zero terminator `\0`.
+
+![length_subroutine](length_subroutine.png)
+_length subroutine_
+
+After a bit of static analysis and debugging using x32dbg I got to make the verification function slightly clearer.
+
+Now that we know at line 28 it's initializing variable `final_value` then if the condition at line 40 is met, the `final_value` once again populated with 1.
+At line 40, the subroutine named `a2_is_not_0_then_return_a2` is taking `v4` as a2 parameter so `v4` matters most here.
+If we get to make `v4 == 1`, then the condition will be met and `final_value` will be 1 which leads to "correct password!" at last!
+`v4` is the boolean as you can see so i have to met the boolean to be true and at this point I know the huge MEMORY[] things are the verification.
+
+![analyzed_main](analyzed_main.png)
+_analyzed main logic pseudocode_
+
+Since I wasnt able to locate the buffer in pseudocode, I decided to read assembly from here.
+The assembly was not heavily obfuscated so I should be fine locating the logic without utilizing any advanced scripts.
+Indeed, it didnt take me much time to find verification process.
+I already done commenting and renaming, yet the image below is the correspoinding part determining `v4`.
+
+![side_by_side](side_by_side.png)
+_disassembly and pseudocode side by side_
+
+Basically it's
+
+1. checking if the buffer length without \0 is 11. (at `0x402672`)
+2. checking if the first 5 letters matches to "FLAG{" (at `0x40269E`)
+3. checking if the 11th letter matches to "}" (at 0x4026B0)
+4. checking if the buffer has \0 (at 0x4026C2)
+5. checking if the 6th letter matches to "a"
+6. checking if the 10th letter matches to "_"
+7. checking if the 8th letter matches to "#"
+8. checking if the 7th letter matches to "("
+9. checking if the 9th letter matches to "3"
+
+if any of them didnt match, it goes to bad branch.
+
+Congratulation, we've found the correct flag '**FLAG{a(#3_}**'.
+
+## Conclusion
+
+![footer](footer.webp)
+
+The difficulty of the keygenme itself was rather low but thanks to that I could focus on fighting obfuscation.
+That was a very cool challenge!
+
+If I take a look at the obfuscator's github page, surprisingly it even has a virtualization and anti-debugging technique.
+I'm sure I detoured the anti-debug with Scylla Hide, I saw IsDebuggerPresent call in a few place.
+Virtualization has been a hot topic past few years and I'm interested in it so I wanna pull it off one day for sure!

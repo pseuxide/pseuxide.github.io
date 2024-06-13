@@ -23,7 +23,7 @@ They're impressive, and you should definitely check them out!
 
 Even though the obfuscator is open-source software, I thought it would be boring to just peek at its code and take advantage of it, so I haven't looked at it.
 
-> The key verification logic for this program is actually straightforward when viewed in a debugger. **However, I believe the author intended this to be a fun challenge with obfuscation**, so I won't take the easiest route by simply tracing back from the final cmp instruction. Instead, mess around with the obfuscation on purpose in this blog post! lol
+> Spoiler alert！: The key verification logic in this program is actually straightforward when viewed in a debugger. **However, I believe the author intended this to be a fun challenge with obfuscation**, so I won't take the easiest route by simply tracing back from the final cmp instruction. Instead, mess around with the obfuscation on purpose in this blog post! lol
 {: .prompt-warning }
 
 ## The program

@@ -75,11 +75,11 @@ The image below is a part of the disassembly. I can say that every part of the c
 ![first_look](first_look.png)
 _what it looked like initially_
 
-When I look around the assembly a bit, I immediately noticed a few weird points in the code.
+When I look around the disassembly a bit, I immediately noticed a few weird points in the code.
 
 Firstly, there are fewer subroutines than expected, and the section is instead filled with a large chunk of contiguous code. Additionally, while there are not many subroutine invocations, there are numerous local address references. As a result, I couldn't view it in either graph mode or pseudocode. This was a major inconvenience for reverse engineering, so I had to find a solution.
 
-Secondly I see bunch of jmp instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the assembly. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
+Secondly I see bunch of jmp instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the instruction. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
 
 Thirdly quite a few conditions of conditional-jmp instruction seems won't change on execution which leads the jmp instructions pointless. However because jmp is overused the control flow has became very messy to follow. It's a known obfuscation technique called **Opaque Predicates**.
 
@@ -96,7 +96,7 @@ Next, I see the stray bytes in middle of the code which also stopping IDA from m
 
 In terms of junk code insertion I only removed the junk subroutine calls for cleaning purpose.
 
-> So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the assembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
+> So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the disassembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
 {: .prompt-info }
 
 ## [+] Taking over obfuscated jmps
@@ -198,7 +198,7 @@ Now let's deobfuscate even further!
 
 ## [+] Reconstruct grieved subroutines
 
-So when I look around the assembly I've found a lot of place which looks like an assembly prologue.
+So when I look around the disassembly I've found a lot of place which looks like a function prologue.
 But somehow IDA didn't get to mark it as a subroutine.
 
 ![prologue](prologue.png)
@@ -352,7 +352,8 @@ Fortunatelly correct and wrong password message was found and this is where it's
 
 Most likely the password verification process starts around here. Because the subroutine is so huge because of the obfuscation I pressed F5 and tryna get hint from pseudocode.
 The pseudocode looked like this without any analysis.
-It's not straight forward at all, for example user input buffer is hidden in the pseudocode, but other than that not hard to get an idea of what it's doing.
+It's not straight forward at all, for example user input buffer is hidden in the pseudocode, technically it's represented by `0x20` in the code which is the offset from ebp but not making much sense.
+However, other than that it's not hard to get an idea of what it's doing.
 
 ![before_analyzed_main](before_analyzed_main.png)
 _main logic pseudocode before analyzed_
@@ -380,8 +381,8 @@ If we get to make `v4 == 1`, then the condition will be met and `final_value` wi
 ![analyzed_main](analyzed_main.png)
 _analyzed main logic pseudocode_
 
-Since I wasnt able to locate the buffer in pseudocode, I decided to read assembly from here.
-The assembly was not heavily obfuscated so I should be fine locating the logic without utilizing any advanced scripts.
+Since the buffer representation is screwed up in pseudocode, I decided to read disassembly from now.
+The disassembly was not heavily obfuscated so I should be fine locating the logic without utilizing any advanced scripts.
 Indeed, it didnt take me much time to find verification process.
 I already done commenting and renaming, yet the image below is the correspoinding part determining `v4`.
 
@@ -392,13 +393,13 @@ Basically it's
 
 1. checking if the buffer length without \0 is 11. (at `0x402672`)
 2. checking if the first 5 letters matches to "FLAG{" (at `0x40269E`)
-3. checking if the 11th letter matches to "}" (at 0x4026B0)
-4. checking if the buffer has \0 (at 0x4026C2)
-5. checking if the 6th letter matches to "a"
-6. checking if the 10th letter matches to "_"
-7. checking if the 8th letter matches to "#"
-8. checking if the 7th letter matches to "("
-9. checking if the 9th letter matches to "3"
+3. checking if the 11th letter matches to "}" (at `0x4026B0`)
+4. checking if the buffer has \0 (at `0x4026C2`)
+5. checking if the 6th letter matches to "a" (at `0x4026D4`)
+6. checking if the 10th letter matches to "_" (at `0x4026E6`)
+7. checking if the 8th letter matches to "#" (at `0x4026F8`)
+8. checking if the 7th letter matches to "(" (at `0x40270A`)
+9. checking if the 9th letter matches to "3" (at `0x40271C`)
 
 if any of them didnt match, it goes to bad branch.
 

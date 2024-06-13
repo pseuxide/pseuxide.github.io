@@ -28,7 +28,7 @@ Even though the obfuscator is open-source software, I thought it would be boring
 The program of the challenge is a simple keygenme. A Prompt "password >>>" shows up upon run.
 It print out "[-] wrong password!" when u type in random string.
 
-## Unpack it first
+## [+] Unpack it first
 
 Right off the bat, let's check if it's actually packed. So the image below is the string list at executable's Entrypoint. NOTHING shows up. This is enough to confirm that it's indeed completely packed.
 
@@ -62,7 +62,7 @@ Once I reached here dumping was as easy as snapping finger. Because Scylla autom
 ![dumping_scylla](dumping_scylla.png){: w="600" .center}
 _dumping payload using Scylla_
 
-## static analysis and locate obfuscation technique
+## [+] Static analysis and locate obfuscation technique
 
 We've restored all the raw payload, so let's move on to static analysis, fired up IDA and loaded up the dump.
 
@@ -83,7 +83,7 @@ Lastly there're some instructions and even subroutines that doesn't do meaningfu
 
 At this point I sensed that this is gonna be a tough night lol.
 
-## The plan
+## [+] Planning
 Since I couldn't straight away converting code into subroutines, I had to go around and deal with obfuscations one by one.
 
 The impulsory measure to take first is fixing the `+1` jmp obfuscation. otherwise me and also hex-lays decompiler wouldn't understand what it's actually doing. Usually when you can recognize the pattern of instructions around the obfuscation, IDA's powerful scripting feature IDApython comes into very handy.
@@ -95,7 +95,7 @@ In terms of junk code insertion I only removed the junk subroutine calls for cle
 > So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the assembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
 {: .prompt-info }
 
-## Taking over obfuscated jmps
+## [+] Taking over obfuscated jmps
 
 Because I haven't seen this, I couldn't tell whether the jmp is broken or the instruction the jmp tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
 
@@ -192,7 +192,7 @@ for seg in idautils.Segments():
 After running this script all the jmps are correctly fixed and cleaned up.
 Now let's deobfuscate even further!
 
-## Reconstruct grieved subroutines
+## [+] Reconstruct grieved subroutines
 
 So when I look around the assembly I've found a lot of place which looks like an assembly prologue.
 But somehow IDA didn't get to mark it as a subroutine.
@@ -276,7 +276,7 @@ for seg in idautils.Segments():
 ```
 {: file='convert_subroutine.py'}
 
-## Removing pointless function calling
+## [+] Removing pointless function calling
 
 Lastly since I spotted some pointless subroutines such as the image below, I wrote its removal code.
 Funny enough, not only its contents are only nops, this particular subroutine doesn't even setting up the stack lol.
@@ -335,7 +335,7 @@ for seg in idautils.Segments():
 ```
 {: file='remove_junk_subroutine_call.py'}
 
-## Take a look at keygen logic
+## [+] Take a look at keygen logic
 
 Now least deobfuscation has been done.
 I can see graph view and pseudocode of main components now so it's a great timing to have a look at actual keygen logic.

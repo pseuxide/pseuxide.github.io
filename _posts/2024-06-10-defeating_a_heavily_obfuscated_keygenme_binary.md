@@ -23,9 +23,8 @@ They're impressive, and you should definitely check them out!
 
 Even though the obfuscator is open-source software, I thought it would be boring to just peek at its code and take advantage of it, so I haven't looked at it.
 
-## Target reader
-
-- people wanna know the basic process of deobfuscation
+> The key verification logic for this program is actually straightforward when viewed in a debugger. **However, I believe the author intended this to be a fun challenge with obfuscation**, so I won't take the easiest route by simply tracing back from the final cmp instruction. Instead, mess around with the obfuscation on purpose in this blog post! lol
+{: .prompt-warning }
 
 ## The program
 
@@ -41,10 +40,10 @@ _strings view in debugger_
 
 Thanks to the challenges description, I already know it's packed by UPX.
 The patcher of UPX was well made and it prevents analysis tools from recognizing UPX.
-But after a quick debugging on its stub, the overall unpacking process was not likely modified...well I believe.
+But after a quick browsing on its stub, the overall unpacking process was not likely modified...well I believe.
 
 Also once I looked at the sections, the binary has suspicious section called '.dosx' which has 0 raw-size but 118784 bytes of virtual size which indicates something will place data into it at runtime. If you have ever done UPX unpacking, you know... Yes, it's most likely what original UPX would do.
-By now I was assuming `.dosx` is the section that will store payload once unpacked, and the `.fish` is the one which is storing the packed payload, you can also confirm it from the high entropy `.fish` section has which is unordinary.
+By that time I was assuming `.dosx` is the section that will store payload once unpacked(a.k.a UPX0), and the `.fish` is the one which is storing the packed payload(a.k.a UPX1), you can also confirm it from the remarkably high entropy `.fish` section has.
 
 ![sections](sections.png)
 _sections information_
@@ -365,7 +364,7 @@ Due to the opaque predicates, there are many `if` statements that always lead to
 Additionally, there are numerous `byte_xxx` values that turn out to be always the same.
 When I checked their references, they were always read-only, indicating they retain their original values from the disk.
 
-For example this is the length subroutine I spotted but it's not straight forward.
+For example this is the length subroutine I spotted but it's not 100% straightforward.
 The condition at line 17 and 18 is the only valid check and others are just garbage.
 This subroutine basically take the pointer of the user input and go through 1 by 1 and return when it hits zero terminator `\0`.
 
@@ -422,4 +421,4 @@ Now I take a look at the obfuscator's github page, surprisingly it even has a vi
 
 I'm sure I detoured the anti-debug with Scylla Hide, I saw `IsDebuggerPresent` call in a few place but never triggered. I also saw the place registering new SEH entry to the exception handler list so i might have something to do with it.
 
-Virtualization has been a hot topic past few years and I'm interested in it so I wanna pull it off one day for sure!
+Virtualization has been a hot topic for this past few years and I'm interested in it so I wanna pull it off one day for sure!

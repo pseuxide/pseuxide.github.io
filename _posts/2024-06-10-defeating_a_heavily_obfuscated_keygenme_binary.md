@@ -351,8 +351,9 @@ Fortunatelly correct and wrong password message was found and this is where it's
 ![where_message_is_used](where_message_is_used.png)
 
 Most likely the password verification process starts around here. Because the subroutine is so huge because of the obfuscation I pressed F5 and tryna get hint from pseudocode.
+
 The pseudocode looked like this without any analysis.
-It's not straight forward at all, for example user input buffer is hidden in the pseudocode, technically it's represented by `0x20` in the code which is the offset from ebp but not making much sense.
+I immediately noticed that there's something wrong with the code, for example user input buffer is hidden in the pseudocode, technically it's represented by `0x20` in the code which actually is an offset from ebp but not making much sense in the code.
 However, other than that it's not hard to get an idea of what it's doing.
 
 ![before_analyzed_main](before_analyzed_main.png)

@@ -79,9 +79,9 @@ When I look around the disassembly a bit, I immediately noticed a few weird poin
 
 Firstly, there are fewer subroutines than expected, and the section is instead filled with a large chunk of contiguous code. Additionally, while there are not many subroutine invocations, there are numerous local address references. As a result, I couldn't view it in either graph mode or pseudocode. This was a major inconvenience for reverse engineering, so I had to find a solution.
 
-Secondly I see bunch of jmp instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the instruction. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
+Secondly I see bunch of `jmp` instruction which has `+1` at the end meaning the obfuscator is somehow making IDA misinterprete the instruction. I must've fixed this otherwise I cannot see the legetimate instruction behind the jump. (at `0x4099CC` in image above)
 
-Thirdly quite a few conditions of conditional-jmp instruction seems won't change on execution which leads the jmp instructions pointless. However because jmp is overused the control flow has became very messy to follow. It's a known obfuscation technique called **Opaque Predicates**.
+Thirdly quite a few conditions of conditional-jmp instruction seems won't change on execution which leads the jmp instructions pointless. However because `jmp` is overused the control flow has became very messy to follow. It's a known obfuscation technique called **Opaque Predicates**.
 
 Lastly there're some instructions and even subroutines that doesn't do meaningful thing. Which offen refers to as **Junk code insertion**
 
@@ -101,7 +101,7 @@ In terms of junk code insertion I only removed the junk subroutine calls for cle
 
 ## [+] Taking over obfuscated jmps
 
-Because I haven't seen this, I couldn't tell whether the jmp is broken or the instruction the jmp tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
+Because I haven't seen this, I couldn't tell whether the `jmp` is broken or the instruction the `jmp` tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
 
 After a bit of research, the latter idea of my assumptions seems to be correct.
 Take a look at the image below. The jz is jumping to `near ptr loc_4099D2+1`.
@@ -112,12 +112,12 @@ _LEFT: obfuscated, RIGHT: deobfuscated_
 
 At this point, I thought it was fairly safe to nop out the isolated bytes at 0x4099D2 and convert them to code as well. I assumed it was unlikely to be referenced by other subroutines unless dynamically resolved, since the byte didn't have a cross-reference annotation. I figured, 'If I find any suspicious subroutine dynamically resolving and referencing the byte, I can always fix it later.'
 
-So the image below is the final result of deobfuscated jmp looks like. It's absolutely clean isn't it.
+So the image below is the final result of deobfuscated `jmp` looks like. It's absolutely clean isn't it.
 
 ![jmp_further_manual_fix](jmp_further_manual_fix.png)
 _final result_
 
-I cant afford time of fixing tons of jmps manually, I decided to leverage the power of IDAPython to automatically detect and patch them all.
+I cant afford time of fixing tons of jumps manually, I decided to leverage the power of IDAPython to automatically detect and patch them all.
 
 Here's the code.
 I dont go into too deep about code here instead I put good amount of comments for readers.
@@ -362,7 +362,7 @@ _main logic pseudocode before analyzed_
 The main factors that slow down your analysis are unnecessary conditions and byte offsets that are only read and never written to.
 
 Due to the opaque predicates, there are many `if` statements that always lead to the same result.
-Additionally, there are numerous byte_xxx values that always turn out to be the same.
+Additionally, there are numerous `byte_xxx` values that turn out to be always the same.
 When I checked their references, they were always read-only, indicating they retain their original values from the disk.
 
 For example this is the length subroutine I spotted but it's not straight forward.
@@ -413,6 +413,10 @@ Congratulation, we've found the correct flag '**FLAG{a(#3_}**'.
 The difficulty of the keygenme itself was rather low but thanks to that I could focus on fighting obfuscation.
 That was a very cool challenge!
 
-If I take a look at the obfuscator's github page, surprisingly it even has a virtualization and anti-debugging technique.
-I'm sure I detoured the anti-debug with Scylla Hide, I saw IsDebuggerPresent call in a few place.
+This time, I intentionally skipped deobfuscating the opaque predicates. However, if the keygen logic becomes more complicated, I'll need to address it.
+
+Now I take a look at the obfuscator's github page, surprisingly it even has a virtualization and anti-debugging technique.
+
+I'm sure I detoured the anti-debug with Scylla Hide, I saw `IsDebuggerPresent` call in a few place but never triggered. I also saw the place registering new SEH entry to the exception handler list so i might have something to do with it.
+
 Virtualization has been a hot topic past few years and I'm interested in it so I wanna pull it off one day for sure!

@@ -412,10 +412,10 @@ _We've got a correct password!_
 
 ![footer](footer.webp)
 
-The difficulty of the keygenme itself was rather low but thanks to that I could focus on fighting obfuscation.
+The difficulty of the keygenme itself was rudimentary but thanks to that I could focus on fighting obfuscation.
 That was a very cool challenge!
 
-This time, I intentionally skipped deobfuscating the opaque predicates. However, if the keygen logic becomes more complicated, I'll need to address it.
+This time, I intentionally skipped deobfuscating the opaque predicates. However, if the key verification logic becomes more complicated, I'd need to address it.
 
 Now I take a look at the obfuscator's github page, surprisingly it even has a virtualization and anti-debugging technique.
 

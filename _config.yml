@@ -18,12 +18,12 @@ timezone: Asia/Tokyo
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: uneducated traverser # the main title
+title: No More Pain # the main title
 
 tagline: a novice engineer's diary # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  pseuxide's tech blog
+  No More Pain - a novice engineer's diary
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://pseuxide.github.io"

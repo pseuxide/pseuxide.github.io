@@ -5,7 +5,7 @@ categories: [low level]
 tags: [asm, reverse-engineering]     # TAG names should always be lowercase
 img_path: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/
 image:
-  path: header.webp
+  path: header.png
   lqip: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/header.svg
   alt: header
 ---

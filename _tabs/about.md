@@ -6,27 +6,23 @@ order: 4
 
 ## Whoami
 
-I am a Japanese man who loves to play around computers.
-Not actively coding everyday, just only when I feel like I want.
+I'm pseuxide a web engineer and hobbyist reverse engineer working at Omotesando, Tokyo.
 
-I work as a web engineer at day time, and do low-key reverse engineering at midnight every now and then.
+I began exploring reverse engineering in 2020. Although my journey has been intermittent, I continue to delve into it whenever I can.
+
+I like reversing programs but still the level where I just starting to get the hang of it.
 
 ## About this blog
-
-As a hobbyist engineer, having my own blog allows me to document each step of my reverse engineering journey without losing my way.
 
 Here's a list of topics you might encounter in this blog:
 
 ```md
 Reverse engineering
-Game hacking
-Web development
-Windows user mode low level programming
+Deobfuscation and devirtualization
 Windows kernel driver development
 Hypervisor development
+Web development
 ```
 {: file='Things I find attractive'}
 
 Some of these are subjects I'm actively diving into, while others are still on my to-do list.
-
-I used to take notes on my github repo, gist or Notion but it's clear to store them as a blog form.

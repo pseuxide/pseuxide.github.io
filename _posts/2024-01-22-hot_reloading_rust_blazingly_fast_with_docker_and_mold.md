@@ -1,12 +1,12 @@
 ---
-title: "Turbocharging Rust: Achieve Lightning-Fast Hot Reloading with Docker and Mold"
+title: "Hot reloading rust blazingly fast with Docker and Mold"
 date: 2024-01-22 14:06:00 +0900
 categories: [docker]
 tags: [docker, rust]     # TAG names should always be lowercase
-img_path: /assets/img/posts/turbocharging_rust_achieve_lightning_fast_hot_reloading_with_docker_and_mold/
+img_path: /assets/img/posts/hot_reloading_rust_blazingly_fast_with_docker_and_mold/
 image:
   path: header.png
-  lqip: /assets/img/posts/turbocharging_rust_achieve_lightning_fast_hot_reloading_with_docker_and_mold/header.svg
+  lqip: /assets/img/posts/hot_reloading_rust_blazingly_fast_with_docker_and_mold/header.svg
   alt: header
 ---
 

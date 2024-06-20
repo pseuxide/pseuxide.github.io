@@ -98,7 +98,7 @@ In terms of junk code insertion I only removed the junk subroutine calls for cle
 > So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the disassembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
 {: .prompt-info }
 
-## [+] Taking over obfuscated jmps
+## [+] Taking down obfuscated jmps
 
 Because I haven't seen this, I couldn't tell whether the `jmp` is broken or the instruction the `jmp` tries to jump to is broken. In my opinion It's okey to mess around and investigate to verify what seems correct cuz every action can be Ctrl+z.
 

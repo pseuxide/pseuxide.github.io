@@ -1,8 +1,8 @@
 ---
 title: Defeating a heavily obfuscated keygenme binary
 date: 2024-06-10 21:00:00 +0900
-categories: [low level]
-tags: [asm, reverse-engineering]     # TAG names should always be lowercase
+categories: [low level, reverse engineering]
+tags: [asm, reverse-engineering, deobfuscation]
 img_path: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/
 image:
   path: header.png

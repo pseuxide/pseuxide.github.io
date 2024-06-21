@@ -1,8 +1,8 @@
 ---
 title: Exploring the fundamentals of hacking Unity games
 date: 2023-12-22 12:00:00 +0900
-categories: [low level]
-tags: [csharp]
+categories: [low level, reverse engineering]
+tags: [csharp, cheat]
 img_path: /assets/img/posts/exploring_the_fundamentals_of_hacking_unity_games/
 image:
   path: header.png

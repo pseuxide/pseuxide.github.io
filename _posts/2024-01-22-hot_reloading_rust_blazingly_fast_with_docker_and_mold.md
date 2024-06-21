@@ -1,8 +1,8 @@
 ---
 title: "Hot reloading rust blazingly fast with Docker and Mold"
 date: 2024-01-22 14:06:00 +0900
-categories: [docker]
-tags: [docker, rust]     # TAG names should always be lowercase
+categories: [web, backend]
+tags: [docker, rust]
 img_path: /assets/img/posts/hot_reloading_rust_blazingly_fast_with_docker_and_mold/
 image:
   path: header.png

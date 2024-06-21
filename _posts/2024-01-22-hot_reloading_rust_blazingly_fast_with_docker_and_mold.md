@@ -15,7 +15,7 @@ image:
 Welcome to this guide, where I'll be showing you how to develop a server in Rust with unparalleled efficiency. By 'efficiency,' I'm referring to significantly reducing the endless waiting periods for source code recompilation after every change.
 I recently tested several possible ways to speed up Rust development with docker, then I've stumbled upon some viable and interesting ideas. I'm excited to share these insights with you.
 
-The corresponding repository introduced in this article is this: [pseuxide/dockerized-rust-hot-reload](https://github.com/pseuxide/dockerized-rust-hot-reload)
+The corresponding repository introduced in this article is this: [vxcall/dockerized-rust-hot-reload](https://github.com/vxcall/dockerized-rust-hot-reload)
 
 ## initial idea: docker compose watch (turned out 2b slow)
 
@@ -99,7 +99,7 @@ fn rocket() -> _ {
 ```
 {: file='src/main.rs'}
 
-And here's my compose.yaml and Dockerfile.dev. If u think it looks overwhelming, don't worry there's same code in my GitHub so [refer to it](https://github.com/pseuxide/dockerized-rust-hot-reload).
+And here's my compose.yaml and Dockerfile.dev. If u think it looks overwhelming, don't worry there's same code in my GitHub so [refer to it](https://github.com/vxcall/dockerized-rust-hot-reload).
 
 ```yaml
 version: "3.8"

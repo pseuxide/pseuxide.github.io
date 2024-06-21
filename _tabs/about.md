@@ -6,7 +6,7 @@ order: 4
 
 ## Whoami
 
-I'm pseuxide a web engineer and hobbyist reverse engineer working at Omotesando, Tokyo.
+I'm vxcall a web engineer and hobbyist reverse engineer working at Omotesando, Tokyo.
 
 I began exploring reverse engineering in 2020. Although my journey has been intermittent, I continue to delve into it whenever I can.
 

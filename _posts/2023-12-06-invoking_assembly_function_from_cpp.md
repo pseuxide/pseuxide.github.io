@@ -49,7 +49,7 @@ so the expected environment is:
 ## How to do it?
 
 I have suitable repository for this topic so I'll pick up code from there as a reference.
-[pseuxide/call_cpuid_asm](https://github.com/pseuxide/call_cpuid_asm/tree/master){:target='_blank'}
+[vxcall/call_cpuid_asm](https://github.com/vxcall/call_cpuid_asm/tree/master){:target='_blank'}
 
 ### C++ side
 
@@ -179,16 +179,16 @@ We've done both cpp and asm coding but there is one last thing to do.
 By default all `.asm` files are not included in the visual studio project when it comes to user mode application i believe.
 
 1. First right click project in solution explorer and click `Build Customizations`.
-![menu](https://github.com/pseuxide/call_cpuid_asm/assets/33578715/08a6ee47-370d-43c3-b562-e2f2323ab116){: w="400" .normal}
+![menu](https://github.com/vxcall/call_cpuid_asm/assets/33578715/08a6ee47-370d-43c3-b562-e2f2323ab116){: w="400" .normal}
 
 2. Check `masm(.targets,.props)` and click `OK`.
-![masm](https://github.com/pseuxide/call_cpuid_asm/assets/33578715/942480ed-bb82-4c75-a741-140923a93650){: w="700" .normal}
+![masm](https://github.com/vxcall/call_cpuid_asm/assets/33578715/942480ed-bb82-4c75-a741-140923a93650){: w="700" .normal}
 
 3. Right click your `get_cpu_type.asm` file and goto `Properties`.
-![ap](https://github.com/pseuxide/call_cpuid_asm/assets/33578715/460620d3-356b-4740-8dfe-ef731257acab){: w="400" .normal}
+![ap](https://github.com/vxcall/call_cpuid_asm/assets/33578715/460620d3-356b-4740-8dfe-ef731257acab){: w="400" .normal}
 
 4. Change `Item Type` to `Microsoft Macro Assembler`.
-![asm_property](https://github.com/pseuxide/call_cpuid_asm/assets/33578715/d753a2cc-1072-46f4-9ff5-b8f736aacfa4){: w="700" .normal}
+![asm_property](https://github.com/vxcall/call_cpuid_asm/assets/33578715/d753a2cc-1072-46f4-9ff5-b8f736aacfa4){: w="700" .normal}
 
 Now your asm file is included in compile process and good to go.
 

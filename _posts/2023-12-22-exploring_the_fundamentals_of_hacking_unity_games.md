@@ -26,7 +26,7 @@ The contents go on in such order
 
 I've also read public articles about Unity hacking and tried some myself, but there are parts that I'm still not sure how they work. Apporogies
 
-I recommend to see this post and [pseuxide/lethal_to_company](https://github.com/pseuxide/lethal_to_company) side by side so that you can catch up with code that I may not mention in the article.
+I recommend to see this post and [vxcall/lethal_to_company](https://github.com/vxcall/lethal_to_company) side by side so that you can catch up with code that I may not mention in the article.
 
 ## Introduction to Lethal Company
 
@@ -54,7 +54,7 @@ Then, right click **References** on the solution explorer and click **Add Refere
 
 In the folder, there should be bunch of .dlls yet the ones we're interested in is what's called `Assenbly-CSharp.dll`, `Assembly-CSharp-firstpass.dll` and all the files starts their name with `Unity` and `UnityEngine`. I know it's tremendous amount, but add them all anyway.
 
-![references](https://github.com/pseuxide/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b){: w="700" .normal}
+![references](https://github.com/vxcall/lethal_to_company/assets/33578715/2e407405-6208-41df-8cad-55e8c70c4d7b){: w="700" .normal}
 _References window after added dlls mentioned above_
 
 
@@ -119,17 +119,17 @@ I'll show you the esp function and how I update the entity in real time later bu
 On dnSpy, hit **Edit -> Search Assembly** to search text from entire Unity assemblies of the game (I believe it technically means every managed dlls in same folder).
 When I look up the word "enemy", one class appeared which stands out, `EnemyAI` which sounds promising. Click it and look at its overview.
 
-![enemy search result](https://github.com/pseuxide/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d){: .normal}
+![enemy search result](https://github.com/vxcall/lethal_to_company/assets/33578715/7163b0b1-88e9-4e39-8035-cfff6ca0a54d){: .normal}
 _"enemy" search result_
 
 Indeed, the convincing symbol names are scattered around in the class such as `SetEnemyStunned` or `this.isEnemyDead`.
 
-![enemy class](https://github.com/pseuxide/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e){: .normal}
+![enemy class](https://github.com/vxcall/lethal_to_company/assets/33578715/2a8ce698-2c90-4e16-ae4e-223f6936d56e){: .normal}
 _first view of EnemyAI class_
 
 Ok EnemyAI's been found, then let's look for local player class. When you seach "Localplayer", 2 pure localplayer text come up which both of them seems the member variables of `HUDManager` and `SoundManager` class. This means you are able to obtain local player by `HUDManager.localPlayer` or `SoundManager.localPlayer`.
 
-![local player](https://github.com/pseuxide/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720){: .normal}
+![local player](https://github.com/vxcall/lethal_to_company/assets/33578715/46c47bff-c691-46f9-8972-d8f5319a6720){: .normal}
 _the localPlayer member in HUDManager class_
 
 Alright, now that you understand how to get the local player pointer, let's focus on the camera object. It's essential for calculating the object position for ESP. While it's commonly believed that `Camera.main` is the valid object used by many games, in this case, it's different. Neither `Camera.main` nor `Camera.current` are applicable.
@@ -137,7 +137,7 @@ Alright, now that you understand how to get the local player pointer, let's focu
 After some test I found that the local player has an attached Camera class named `gameplayCamera` which seems promising.
 Turns out this is a real camera used in the game.
 
-![gameplay camera](https://github.com/pseuxide/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4){: .normal}
+![gameplay camera](https://github.com/vxcall/lethal_to_company/assets/33578715/dfc9f119-3cbb-435b-a36c-a9f24074c3b4){: .normal}
 _gameplayCamera class in the PlayerControllerB class (class of the local player)_
 
 ## [+] How I update entities
@@ -288,12 +288,12 @@ Lastly you fill the Class name and Method name which I as mentioned earlier part
 There you go, by pressing "Inject" button at the bottom, it will do its job after that.
 You dont have to care about left pane of the injector UI when you inject.
 
-![SharpMonoInjector](https://github.com/pseuxide/lethal_to_company/assets/33578715/74f91c58-354a-41ef-8c87-5b28ade033da){: .normal}
+![SharpMonoInjector](https://github.com/vxcall/lethal_to_company/assets/33578715/74f91c58-354a-41ef-8c87-5b28ade033da){: .normal}
 _SharpMonoInjector filled with all informations_
 
 The final result looks like this.
 
-![hack visual](https://github.com/pseuxide/lethal_to_company/assets/33578715/3cba1b1e-26a8-43ab-98f6-0a1f57900019){: .normal}
+![hack visual](https://github.com/vxcall/lethal_to_company/assets/33578715/3cba1b1e-26a8-43ab-98f6-0a1f57900019){: .normal}
 _resulting ESP. green indicates items and red indicates enemies_
 
 

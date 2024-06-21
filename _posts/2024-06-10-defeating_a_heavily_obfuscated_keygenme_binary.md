@@ -415,10 +415,10 @@ _We've got a correct password!_
 The difficulty of the keygenme itself was rudimentary but thanks to that I could focus on fighting obfuscation.
 That was a very cool challenge!
 
-This time, I intentionally skipped deobfuscating the opaque predicates. However, if the key verification logic becomes more complicated, I'd need to address it.
+This time, I intentionally skipped deobfuscating the opaque predicates and junk code insertion. However, if the key verification logic becomes more complicated, I'd need to address it.
 
 Now I take a look at the obfuscator's github page, surprisingly it even has a virtualization and anti-debugging technique.
-
-I'm sure I detoured the anti-debug with Scylla Hide, I saw `IsDebuggerPresent` call in a few place but never triggered. I also saw the place registering new SEH entry to the exception handler list so i might have something to do with it.
-
+I'm sure I detoured the anti-debug with ScyllaHide, I saw `IsDebuggerPresent` call in a few place but never triggered.
 Virtualization has been a hot topic for this past few years and I'm interested in it so I wanna pull it off one day for sure!
+
+I think I'll write about solving some other obfuscation techniques for following few posts.

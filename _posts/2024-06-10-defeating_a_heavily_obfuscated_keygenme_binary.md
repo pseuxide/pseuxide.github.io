@@ -95,7 +95,7 @@ Next, I see the stray bytes in middle of the code which also stopping IDA from m
 
 In terms of junk code insertion I only removed the junk subroutine calls for cleaning purpose.
 
-> So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the disassembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use` which, especially latter, is supposed to be time consuming to deal with.
+> So I ended up with not dealing with opaque predicates and junk code insertion because even if It screw up the control flow I felt like the disassembly and pseudocode was readable. In my view, at the very least, the junk code included `abuse of the cpuid instruction` and `double assignment to registers before use`. I assume I can clean them up with symbolic execution but it's gonna be too much for this keygenme.
 {: .prompt-info }
 
 ## [+] Taking down obfuscated jmps

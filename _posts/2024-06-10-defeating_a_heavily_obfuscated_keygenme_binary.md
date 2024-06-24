@@ -410,7 +410,7 @@ _We've got a correct password!_
 
 ## Conclusion
 
-![footer](footer.webp)
+![footer](footer.png)
 
 The difficulty of the keygenme itself was rudimentary but thanks to that I could focus on fighting obfuscation.
 That was a very cool challenge!

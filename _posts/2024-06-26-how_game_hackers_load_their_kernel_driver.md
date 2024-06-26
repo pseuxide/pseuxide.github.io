@@ -50,7 +50,7 @@ But now, let's take a close look at how kdmapper load your driver to kernel memo
 
 ## [+] process of mapping
 
-Its mapping process can be break down into those steps:
+Its mapping process can be broken down into those steps:
 
 - load `iqvw64e.sys`
 - remove it's trace for additional stealthiness

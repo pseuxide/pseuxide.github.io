@@ -1,7 +1,7 @@
 ---
 title: Defeating a heavily obfuscated keygenme binary
 date: 2024-06-10 21:00:00 +0900
-categories: [low level, deobfuscation]
+categories: [reverse engineering, deobfuscation]
 tags: [asm, reverse-engineering, deobfuscation]
 img_path: /assets/img/posts/defeating_a_heavily_obfuscated_keygenme_binary/
 image:

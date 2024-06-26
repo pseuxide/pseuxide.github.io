@@ -263,7 +263,9 @@ Moreover using APIs like KeStackAttachProcess or setting NMI callbacks and stuff
 
 Hence, you have to learn or reverse engineer anti cheat and know what it's monitoring.
 
-## [+] conclusion
+## conclusion
+
+![footer](footer.jpg)
 
 I believe kdmapper is still very widely used method among game hackers. Very powerful.
 However, to utilize it and detour anti cheat's check, u have to strive to make your driver look legetimate process.

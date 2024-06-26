@@ -5,7 +5,7 @@ categories: [low level, programming]
 tags: [cpp, asm]     # TAG names should always be lowercase
 img_path: /assets/img/posts/invoking_assembly_function_from_cpp/
 image:
-  path: header.png
+  path: header.jpg
   lqip: /assets/img/posts/invoking_assembly_function_from_cpp/header.svg
   alt: header
 ---

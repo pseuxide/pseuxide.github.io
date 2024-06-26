@@ -148,7 +148,7 @@ image_size = image_size - (destroyHeader ? TotalVirtualHeaderSize : 0);
 
 [kdmapper::MapDriver](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/kdmapper.cpp#L73) function is responsible of actual driver mapping.
 
-Then it allocates kernel memory as well as physical memory based on 3 options. Each of them does allocation anyways in AllocMdlMemory, AllocIndependentPages or intel_driver::AllocatePool.
+Then it allocates kernel memory as well as physical memory based on 3 options. Each of them does allocation anyways in `AllocMdlMemory`, `AllocIndependentPages` or `intel_driver::AllocatePool`.
 
 After that it fix relocations just similar to what you do when u inject your dll in manual map way.
 
@@ -165,7 +165,7 @@ if (!intel_driver::WriteMemory(iqvw64e_device_handle, realBase, (PVOID)((uintptr
 
 #### manually call your DriverEntry
 
-Finally it calls your custom DriverEntry like this.
+Finally it calls your custom DriverEntry.
 
 ```cpp
 NTSTATUS status = 0;
@@ -176,15 +176,15 @@ if (!intel_driver::CallKernelFunction(iqvw64e_device_handle, &status, address_of
 }
 ```
 
-The method it utilizes to call kernel function in [intel_driver::CallKernelFunction](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/include/intel_driver.hpp#L154) is common in kernel exploit dev but interesting, so let's see how it does.
+The method it employs to call custom driver entry in [intel_driver::CallKernelFunction](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/include/intel_driver.hpp#L154) is very common technique in kernel exploit development but still interesting, so let's closer look at it.
 
-It first construct a shellcode.
+As you can see in the code below, it first construct a shellcode. Let me explain what it's doing.
 
-- 0x48 and 0xb8 represents x64 constant load into rax register
-- The bunch of 0x00s are filled with your DriverEntry's address in the last line.
-- 0xff and 0xe0 indicates `jmp rax`
+- `0x48` and `0xb8` represents x64 constant load into `rax` register
+- The bunch of `0x00`s are filled with your DriverEntry's address in the last line.
+- `0xff` and `0xe0` indicates `jmp rax`
 
-So it's basically assigning your DriverEntry address into rax, then jumping to rax.
+So the shellcode's basically assigning your DriverEntry address into `rax`, then jumping to `rax`.
 
 ```cpp
 uint8_t kernel_injected_jmp[] = { 0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0 };
@@ -192,21 +192,12 @@ uint8_t original_kernel_function[sizeof(kernel_injected_jmp)];
 *(uint64_t*)&kernel_injected_jmp[2] = kernel_function_address;
 ```
 
-After shellcode construction, it gets NtAddAtom from kernel and replace first bytes to the shellcode like this!
+After shellcode construction, it gets NtAddAtom from kernel and replace first 12 bytes with the aforementioned shellcode like this!
 
 ```cpp
 static uint64_t kernel_NtAddAtom = GetKernelModuleExport(device_handle, intel_driver::ntoskrnlAddr, "NtAddAtom");
 
-if (!ReadMemory(device_handle, kernel_NtAddAtom, &original_kernel_function, sizeof(kernel_injected_jmp)))
-    return false;
-
-if (original_kernel_function[0] == kernel_injected_jmp[0] &&
-    original_kernel_function[1] == kernel_injected_jmp[1] &&
-    original_kernel_function[sizeof(kernel_injected_jmp) - 2] == kernel_injected_jmp[sizeof(kernel_injected_jmp) - 2] &&
-    original_kernel_function[sizeof(kernel_injected_jmp) - 1] == kernel_injected_jmp[sizeof(kernel_injected_jmp) - 1]) {
-    Log(L"[-] FAILED!: The code was already hooked!! another instance of kdmapper running?!" << std::endl);
-    return false;
-}
+// ...
 
 // Overwrite the pointer with kernel_function_address
 if (!WriteToReadOnlyMemory(device_handle, kernel_NtAddAtom, &kernel_injected_jmp, sizeof(kernel_injected_jmp)))
@@ -214,9 +205,9 @@ if (!WriteToReadOnlyMemory(device_handle, kernel_NtAddAtom, &kernel_injected_jmp
 ```
 
 Now all it has to do is calling NtAddAtom from user mode. 
-When syscall happens and transitions to kernel, the kernel hook that we set will be kicked automatically.
+When syscall happens and the instruction transitions into kernel mode NtAddAtom, the kernel hook that we set will be kicked automatically.
 
-For easy read I strip out some details but this is where kdmapper calls NtAddAtom:
+For easy read I strip out some details but this is where kdmapper calls user mode NtAddAtom:
 
 ```cpp
 const auto NtAddAtom = reinterpret_cast<void*>(GetProcAddress(ntdll, "NtAddAtom"));
@@ -225,6 +216,8 @@ const auto Function = reinterpret_cast<FunctionFn>(NtAddAtom);
 *out_result = Function(arguments...);
 Function(arguments...);
 ```
+
+I omit some details but these are the main steps it takes to map your driver.
 
 ## [+] kdmapper in action
 

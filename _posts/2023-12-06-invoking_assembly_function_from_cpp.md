@@ -194,7 +194,7 @@ Now your asm file is included in compile process and good to go.
 
 ## Conclusion
 
-![footer](footer.png)
+![footer](footer.jpg)
 
 As you saw, it's actually not that overwhelming to use asm with C++.
 

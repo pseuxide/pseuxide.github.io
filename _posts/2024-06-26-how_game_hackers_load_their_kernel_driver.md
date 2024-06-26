@@ -12,27 +12,29 @@ image:
 
 ## Introduction
 
-Lately it's pretty common that the AAA game titles employ almost uncrackable anti cheat such as Easy anti cheat, Buttle eye and Vanguard.
+In recent years, AAA game titles have increasingly adopted sophisticated anti-cheat systems such as Easy Anti-Cheat, BattlEye, and Riot Vanguard.
+These systems have become remarkably robust, primarily due to their utilization of kernel-level drivers.
+Operating at this privileged level allows them to monitor the entire computer system more effectively than user-mode programs.
 
-How it became such robust? Because they utilizes kernel driver to monitor your entire computer in higher level than every other program.
-However, skilled game hackers still circumvent those monitors by loading their own kernel driver to suppress anti cheat in kernel mode and manage to hack games that's why dirty cheaters are still present nowadays.
+Despite the advanced nature of these anti-cheat systems, skilled game hackers continue to find ways to circumvent them.
+Their approach often involves loading their own kernel drivers to suppress or bypass the anti-cheat mechanisms at the kernel level.
+This ongoing cat-and-mouse game explains why cheating remains a persistent issue in online gaming.
 
-In this post I'll be briefly introduce you to a tool called [kdmapper](https://github.com/TheCruZ/kdmapper) which is used to load their unsigned kernel driver into kernel space.
+This post will introduce you to a tool called [kdmapper](https://github.com/TheCruZ/kdmapper), which is frequently used by cheat developers to load unsigned kernel drivers into kernel space. Understanding this tool and its implications is crucial for comprehending the current state of game security and cheating techniques.
 
 ## What is kernel driver?
 
-For the sake of time and ease, I only write concise explanation here.
+Kernel drivers are specialized programs that operate differently from typical user applications.
+While standard programs run in user mode, kernel drivers execute in the privileged kernel space.
+They serve as a bridge between user-mode applications and hardware, responding to requests from user-mode programs to interact with system resources.
+To draw an analogy, you can think of kernel drivers as similar to backend servers in web development, processing requests from user-mode "clients."
 
-If you dont know what's kernel driver and want to learn it deeply, I highly recommend reading [Windows Kernel Programming](https://leanpub.com/windowskernelprogrammingsecondedition). It's very informative and let you understand many about windows kernel.
-
-Basically kernel drivers are special programs differ from normal programs. Normal programs run in user mode and kernel driver runs in kernel space which has much more privilege. It usually wont run by itself, it works by responding request from user mode program. For your ease of understanding, you can think of it as similar to backend server in web development.
-
-The diagram below illustrates the layers of privilege in windows. Note that `Applications` here refer to user mode software.
+For a comprehensive understanding of kernel drivers, I highly recommend reading [Windows Kernel Programming](https://leanpub.com/windowskernelprogrammingsecondedition) by Pavel Yosifovich. This book offers in-depth insights into the Windows kernel and driver development.
 
 ![windows-rings](windows-rings.webp){: w="600" .center}
 _windows ring system_
 
-Windows api offers user mode API for sending request to kernel drivers for example [DeviceIoControl](https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol), [WriteFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile) and [ReadFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile), and then kernel drivers can run corresponding tasks that you define.
+Windows offers user mode API for sending request to kernel drivers for example [DeviceIoControl](https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol), [WriteFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile) and [ReadFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile), and then kernel drivers can run corresponding tasks that you define.
 
 Even if you can develop a kernel driver, you cannot load it immediately - Windows lays down strong security measures and only allows drivers that have passed Microsoft's and other vendors' review and are officially signed to be loaded.
 

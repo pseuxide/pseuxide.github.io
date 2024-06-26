@@ -146,7 +146,7 @@ image_size = image_size - (destroyHeader ? TotalVirtualHeaderSize : 0);
 
 #### map your driver into kernel space
 
-[kdmapper::MapDriver](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/kdmapper.cpp#L73) function responsible of actual driver mapping.
+[kdmapper::MapDriver](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/kdmapper.cpp#L73) function is responsible of actual driver mapping.
 
 Then it allocates kernel memory as well as physical memory based on 3 options. Each of them does allocation anyways in AllocMdlMemory, AllocIndependentPages or intel_driver::AllocatePool.
 

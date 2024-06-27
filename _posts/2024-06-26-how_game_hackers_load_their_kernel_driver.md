@@ -64,7 +64,7 @@ Its mapping process can be broken down into those steps:
 First, it loads `iqvw64e.sys` inside [service::RegisterAndStart](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/service.cpp#L3) function. It sets up corresponding registries first and then uses native NT API NtLoadDriver like this.
 
 ```cpp
-// Need higher privilege to call NtLoadDriver
+// Need to enable SE_LOAD_DRIVER_PRIVILEGE privilege
 auto RtlAdjustPrivilege = (nt::RtlAdjustPrivilege)GetProcAddress(ntdll, "RtlAdjustPrivilege");
 auto NtLoadDriver = (nt::NtLoadDriver)GetProcAddress(ntdll, "NtLoadDriver");
 
@@ -83,6 +83,7 @@ RtlInitUnicodeString(&serviceStr, wdriver_reg_path.c_str());
 // Calling NtLoadDriver with registory path
 Status = NtLoadDriver(&serviceStr);
 ```
+{: file='kdmapper/service.cpp'}
 
 #### remove it's trace for additional stealthiness
 
@@ -120,6 +121,8 @@ if (!intel_driver::ClearWdFilterDriverList(result)) {
     return INVALID_HANDLE_VALUE;
 }
 ```
+{: file='kdmapper/intel_driver.cpp'}
+
 
 #### read raw data of your kernel driver into memory
 
@@ -147,6 +150,7 @@ uint32_t image_size = nt_headers->OptionalHeader.SizeOfImage;
 DWORD TotalVirtualHeaderSize = (IMAGE_FIRST_SECTION(nt_headers))->VirtualAddress;
 image_size = image_size - (destroyHeader ? TotalVirtualHeaderSize : 0);
 ```
+{: file='kdmapper/main.cpp'}
 
 #### map your driver into kernel space
 
@@ -166,6 +170,8 @@ if (!intel_driver::WriteMemory(iqvw64e_device_handle, realBase, (PVOID)((uintptr
 }
 
 ```
+{: file='kdmapper/kdmapper.cpp'}
+
 
 #### manually call your DriverEntry
 
@@ -179,6 +185,7 @@ if (!intel_driver::CallKernelFunction(iqvw64e_device_handle, &status, address_of
     break;
 }
 ```
+{: file='kdmapper/kdmapper.cpp'}
 
 The method it employs to call custom driver entry in [intel_driver::CallKernelFunction](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/include/intel_driver.hpp#L154) is very common technique in kernel exploit development but still interesting, so let's closer look at it.
 
@@ -192,7 +199,7 @@ uint8_t original_kernel_function[sizeof(kernel_injected_jmp)];
 // Replacing 0x00s with DriverEntry's address
 *(uint64_t*)&kernel_injected_jmp[2] = kernel_function_address;
 ```
-
+{: file='kdmapper/include/intel_driver.hpp'}
 
 You might be wondering what is `{ 0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0 }`, here's one by one description.
 
@@ -208,7 +215,6 @@ mov rax, 0xFFFFF80179A3B000 ; suppose this is DriverEntry's address
 jmp rax
 ```
 
-
 After shellcode construction, it gets `NtAddAtom` from kernel and replace first 12 bytes with the aforementioned shellcode.
 By replacing it, when a user calls `NtAddAtom` this kernel mode `NtAddAtom` will eventually be called and the hook will be kicked and it transfers further execution to your DriverEntry.
 
@@ -222,6 +228,7 @@ static uint64_t kernel_NtAddAtom = GetKernelModuleExport(device_handle, intel_dr
 if (!WriteToReadOnlyMemory(device_handle, kernel_NtAddAtom, &kernel_injected_jmp, sizeof(kernel_injected_jmp)))
     return false;
 ```
+{: file='kdmapper/include/intel_driver.hpp'}
 
 > The hook target can be anything but `NtAddAtom` theoretically. However, if the target function has `_security_cookie` implemented then that's not a case and you have to avoid such functions if I'm not mistaken. Also it's safe to hook popular functioins, it's not gonna be spam called, because kdmapper will later restoring the original bytes immediately after calling a hook.
 {: .prompt-tip }
@@ -240,6 +247,7 @@ const auto Function = reinterpret_cast<FunctionFn>(NtAddAtom);
 // Calling
 *out_result = Function(arguments...);
 ```
+{: file='kdmapper/include/intel_driver.hpp'}
 
 I omit some details but these are the main steps it takes to map your driver.
 
@@ -247,14 +255,17 @@ I omit some details but these are the main steps it takes to map your driver.
 
 I'm going to demonstrate how to map your kernel driver using kdmapper here.
 
-Suppose you have desired kernel driver, go to project settings of kernel driver and configure the entry point.
+Right off the bat, get or build kdmapper.exe in whatever way.
+
+Next, build your driver. Suppose you have desired kernel driver source loaded in Visual Studio.
+Go to project settings of kernel driver and configure the entry point.
 
 - Configuration Properties
   - Linker
     - All Options
       - ✅ Entry Point -> DriverEntry
 
-It initially should be GsDriverEntry. To let kdmapper call your custom driver entry point, **u need to change it to DriverEntry**.
+It initially should be GsDriverEntry. To let kdmapper call your custom driver entry point, **u need to rename it to DriverEntry**.
 
 ![custom_entry_point](custom_entry_point.png)
 _Entry Point setting_

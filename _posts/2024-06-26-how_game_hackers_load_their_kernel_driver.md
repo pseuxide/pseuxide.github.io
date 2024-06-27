@@ -61,9 +61,10 @@ Its mapping process can be broken down into those steps:
 - manually call your DriverEntry
 
 #### load iqvw64e.sys
-First, it loads `iqvw64e.sys` inside [service::RegisterAndStart](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/service.cpp#L3) function. It sets up corresponding registries first and then uses native NT api NtLoadDriver like this.
+First, it loads `iqvw64e.sys` inside [service::RegisterAndStart](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/service.cpp#L3) function. It sets up corresponding registries first and then uses native NT API NtLoadDriver like this.
 
 ```cpp
+// Need higher privilege to call NtLoadDriver
 auto RtlAdjustPrivilege = (nt::RtlAdjustPrivilege)GetProcAddress(ntdll, "RtlAdjustPrivilege");
 auto NtLoadDriver = (nt::NtLoadDriver)GetProcAddress(ntdll, "NtLoadDriver");
 
@@ -79,6 +80,7 @@ std::wstring wdriver_reg_path = L"\\Registry\\Machine\\System\\CurrentControlSet
 UNICODE_STRING serviceStr;
 RtlInitUnicodeString(&serviceStr, wdriver_reg_path.c_str());
 
+// Calling NtLoadDriver with registory path
 Status = NtLoadDriver(&serviceStr);
 ```
 
@@ -180,23 +182,38 @@ if (!intel_driver::CallKernelFunction(iqvw64e_device_handle, &status, address_of
 
 The method it employs to call custom driver entry in [intel_driver::CallKernelFunction](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/include/intel_driver.hpp#L154) is very common technique in kernel exploit development but still interesting, so let's closer look at it.
 
-As you can see in the code below, it first construct a shellcode. Let me explain what it's doing.
+
+Look at the source code below where it constructs shellcode called `kernel_injected_jmp`.
+
+```cpp
+uint8_t kernel_injected_jmp[] = { 0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0 };
+// Copying original shell code into original_kernel_function to restore NtAddAtom later
+uint8_t original_kernel_function[sizeof(kernel_injected_jmp)];
+// Replacing 0x00s with DriverEntry's address
+*(uint64_t*)&kernel_injected_jmp[2] = kernel_function_address;
+```
+
+
+You might be wondering what is `{ 0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0 }`, here's one by one description.
 
 - `0x48` and `0xb8` represents x64 constant load into `rax` register
 - The bunch of `0x00`s are filled with your DriverEntry's address in the last line.
 - `0xff` and `0xe0` indicates `jmp rax`
 
 So the shellcode's basically assigning your DriverEntry address into `rax`, then jumping to `rax`.
+You can imagine it like this:
 
-```cpp
-uint8_t kernel_injected_jmp[] = { 0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xe0 };
-uint8_t original_kernel_function[sizeof(kernel_injected_jmp)];
-*(uint64_t*)&kernel_injected_jmp[2] = kernel_function_address;
+```nasm
+mov rax, 0xFFFFF80179A3B000 ; suppose this is DriverEntry's address
+jmp rax
 ```
 
-After shellcode construction, it gets NtAddAtom from kernel and replace first 12 bytes with the aforementioned shellcode like this!
+
+After shellcode construction, it gets `NtAddAtom` from kernel and replace first 12 bytes with the aforementioned shellcode.
+By replacing it, when a user calls `NtAddAtom` this kernel mode `NtAddAtom` will eventually be called and the hook will be kicked and it transfers further execution to your DriverEntry.
 
 ```cpp
+// Getting kernel NtAddAtom's address
 static uint64_t kernel_NtAddAtom = GetKernelModuleExport(device_handle, intel_driver::ntoskrnlAddr, "NtAddAtom");
 
 // ...
@@ -206,17 +223,22 @@ if (!WriteToReadOnlyMemory(device_handle, kernel_NtAddAtom, &kernel_injected_jmp
     return false;
 ```
 
-Now all it has to do is calling NtAddAtom from user mode.
-When syscall happens and the instruction transitions into kernel mode NtAddAtom, the kernel hook that we set will be kicked automatically.
+> The hook target can be anything but `NtAddAtom` theoretically. However, if the target function has `_security_cookie` implemented then that's not a case and you have to avoid such functions if I'm not mistaken. Also it's safe to hook popular functioins, it's not gonna be spam called, because kdmapper will later restoring the original bytes immediately after calling a hook.
+{: .prompt-tip }
 
-For easy read I strip out some details but this is where kdmapper calls user mode NtAddAtom:
+Now all it has to do is calling `NtAddAtom` from user mode.
+When syscall happens and the instruction transitions into kernel mode `NtAddAtom`, the kernel hook that we set will be kicked automatically.
+
+For easy read I strip out some details but this is where kdmapper calls user mode `NtAddAtom`:
 
 ```cpp
+// Getting uesr mode NtAddAtom from ntdll
 const auto NtAddAtom = reinterpret_cast<void*>(GetProcAddress(ntdll, "NtAddAtom"));
+// Making it callable
 const auto Function = reinterpret_cast<FunctionFn>(NtAddAtom);
 
+// Calling
 *out_result = Function(arguments...);
-Function(arguments...);
 ```
 
 I omit some details but these are the main steps it takes to map your driver.
@@ -239,8 +261,8 @@ _Entry Point setting_
 
 Once you build it with the custom entry point setting, you can make kdmapper do its magic by drag and drop the .sys file onto kdmapper binary. (unless you want to use options)
 
-> Driver signing enforcement not have to be disabled in this way but make sure no anti cheats or anti virus is running in your vm.
-{: .prompt-warning }
+> Driver signing enforcement doesn't have to be disabled in this way but make sure no anti cheats or anti virus is running in your vm.
+{: .prompt-tip }
 
 ![dnd_kdmapper](dnd_kdmapper.png)
 
@@ -250,11 +272,15 @@ There you go! your driver will be mapped in your kernel!
 
 Well...unless you configure it well.
 
-The thing is anti cheats has 'suspicious driver list' and periodically check if known volunerable drivers have been loaded and `iqvw64e.sys` is one of them.
-You have to exploit your own driver which is capable of read and write memory or some alternative APIs like MmMapIoSpace/MmUnmapIoSpace or ZwMapViewOfSection/ZwUnmapViewOfSection.
 
-But most important thing is **your driver pretends like it's a legit driver**. For example if you use normal communication between user mode application and driver, it will be detected.
-Moreover using APIs like KeStackAttachProcess or setting NMI callbacks and stuff are all minitored and easily be flagged if you ever fuck up anything.
+
+The thing is anti cheats has suspicious drivers list and periodically check if known volunerable drivers have been loaded and `iqvw64e.sys` is one of them.
+You have to exploit your own driver which is capable of read and write memory or some alternative APIs like MmMapIoSpace/MmUnmapIoSpace or ZwMapViewOfSection/ZwUnmapViewOfSection. This is called Bring Your Own Volunerable Driver, in short BYOVD lol.
+
+In case you are interested in, [loldrivers.io](https://www.loldrivers.io/) is a website you can find volunerable drivers at for example. Of course it's the best to have your own driver not disclosed publically tho.
+
+But most important and difficult part than BYOVD is **make your driver pretends like it's a legit driver**. If your driver behave bad, it will lead u banned. For example if you use normal communication method between user mode application and driver, it will be detected.
+Moreover using APIs like KeStackAttachProcess or setting NMI callbacks and stuff are all minitored so easily be flagged if you ever fuck up anything.
 
 Hence, you have to learn or reverse engineer anti cheat and know what it's monitoring.
 
@@ -262,7 +288,7 @@ Hence, you have to learn or reverse engineer anti cheat and know what it's monit
 
 ![footer](footer.jpg)
 
-I believe kdmapper is still very widely used method among game hackers. Very powerful.
+I believe kdmapper is very powerful and still widely used method among game hackers.
 However, to utilize it and detour anti cheat's check, u have to strive to make your driver look legetimate process.
 
 Good luck:)

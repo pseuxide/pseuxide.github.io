@@ -88,7 +88,7 @@ After that it tries to remove some traces that anti-cheat is checking in [intel_
 
 Each of the function does following
 
-- `ClearPiDDBCacheTable`: clearing driver name from list of drivers in `ntoskrnl.exe`. driver name'll added when you load one.
+- `ClearPiDDBCacheTable`: clearing driver name from list of drivers in `ntoskrnl.exe`. driver name'll be added when you load one.
 - `ClearKernelHashBucketList`: deleting driver name and hash of driver certificate from particular list in `ci.dll`
 - `ClearMmUnloadedDrivers`: deleting driver name to prevent kernel from remember and add to unloaded driver list.
 - `ClearWdFilterDriverList`: unlinking driver name from a linked list in `WdFilter.sys` which holds all running drivers.
@@ -150,7 +150,7 @@ image_size = image_size - (destroyHeader ? TotalVirtualHeaderSize : 0);
 
 [kdmapper::MapDriver](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/kdmapper.cpp#L73) function is responsible of actual driver mapping.
 
-Then it allocates kernel memory as well as physical memory based on 3 options. Each of them does allocation anyways in `AllocMdlMemory`, `AllocIndependentPages` or `intel_driver::AllocatePool`.
+Before map, it allocates kernel memory as well as physical memory based on 3 options. All of them does allocation anyways in `AllocMdlMemory`, `AllocIndependentPages` or `intel_driver::AllocatePool`. Each of the method has their own advantages so u better research them.
 
 After that it fix relocations just similar to what you do when u inject your dll in manual map way.
 
@@ -206,7 +206,7 @@ if (!WriteToReadOnlyMemory(device_handle, kernel_NtAddAtom, &kernel_injected_jmp
     return false;
 ```
 
-Now all it has to do is calling NtAddAtom from user mode. 
+Now all it has to do is calling NtAddAtom from user mode.
 When syscall happens and the instruction transitions into kernel mode NtAddAtom, the kernel hook that we set will be kicked automatically.
 
 For easy read I strip out some details but this is where kdmapper calls user mode NtAddAtom:
@@ -248,7 +248,7 @@ There you go! your driver will be mapped in your kernel!
 
 ## [-] It's detectable
 
-Well...unless you configure it well. 
+Well...unless you configure it well.
 
 The thing is anti cheats has 'suspicious driver list' and periodically check if known volunerable drivers have been loaded and `iqvw64e.sys` is one of them.
 You have to exploit your own driver which is capable of read and write memory or some alternative APIs like MmMapIoSpace/MmUnmapIoSpace or ZwMapViewOfSection/ZwUnmapViewOfSection.

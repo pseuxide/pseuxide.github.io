@@ -28,6 +28,17 @@ I've also read public articles about Unity hacking and tried some myself, but th
 
 I recommend to see this post and [vxcall/lethal_to_company](https://github.com/vxcall/lethal_to_company) side by side so that you can catch up with code that I may not mention in the article.
 
+## Table of Contents
+
+- [Introduction to Lethal Company](#introduction-to-lethal-company)
+- [[+] Setting up Visual Studio project](#-setting-up-visual-studio-project)
+- [[+] Probably an equivalent to dllmain...if you ask me](#-probably-an-equivalent-to-dllmainif-you-ask-me)
+- [[+] Hack code body](#-hack-code-body)
+- [[+] How I update entities](#-how-i-update-entities)
+- [[+] Wall hack a.k.a ESP function](#-wall-hack-aka-esp-function)
+- [[+] Inject the dll](#-inject-the-dll)
+- [Conclusion](#conclusion)
+
 ## Introduction to Lethal Company
 
 In this post, I'll take the game [Lethal Company](https://store.steampowered.com/app/1966720/Lethal_Company/) as an target (I enjoyed it recently with my friends).
@@ -38,11 +49,6 @@ This sentences are quorted from its Steam page.
 > You are a contracted worker for the Company. Your job is to collect scrap from abandoned, industrialized moons to meet the Company's profit quota. You can use the cash you earn to travel to new moons with higher risks and rewards--or you can buy fancy suits and decorations for your ship. Experience nature, scanning any creature you find to add them to your bestiary. Explore the wondrous outdoors and rummage through their derelict, steel and concrete underbellies. Just never miss the quota.
 
 In short, it's a FPS game where you collect scraps in the planets that monsters are crawling around and sell them to your boss for the company.
-
-## Target reader
-
-Those who
-- wanna know about unity hack
 
 ## [+] Setting up Visual Studio project
 
@@ -60,7 +66,7 @@ _References window after added dlls mentioned above_
 
 By now we added all we need which allow us to use all the fun stuff inside the game. The magic word `using UnityEngine;` gives us the power from now on.
 
-## [+] Probably an equivalent to dllmain... if you ask me
+## [+] Probably an equivalent to dllmain...if you ask me
 
 To perform its functionality after injection, define what's equivalent to dllmain in C++.
 Following code is making GameObject, and adding component which is the body of our hack.
@@ -269,7 +275,7 @@ namespace lethal_to_company
 }
 ```
 
-# [+] Inject the dll
+## [+] Inject the dll
 
 Once you built the dll, last thing you'd do is injecting it to the game.
 Because the dll is managed, you have to use correct injector, not the one you've been using with C++ hack.

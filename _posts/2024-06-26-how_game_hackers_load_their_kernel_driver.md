@@ -22,6 +22,19 @@ This ongoing cat-and-mouse game explains why cheating remains a persistent issue
 
 This post will introduce you to a tool called [kdmapper](https://github.com/TheCruZ/kdmapper), which is frequently used by cheat developers to load unsigned kernel drivers into kernel space. Understanding this tool and its implications is crucial for comprehending the current state of game security and cheating techniques.
 
+## Table of Contents
+- [What is kernel driver?](#what-is-kernel-driver)
+- [[+] Dark arts: kdmapper](#-dark-arts-kdmapper)
+- [[+] Process of mapping](#-process-of-mapping)
+  - [loads iqvw64e.sys](#loads-iqvw64esys)
+  - [removes it’s trace for additional stealthiness](#removes-its-trace-for-additional-stealthiness)
+  - [reads raw data of your kernel driver into memory](#reads-raw-data-of-your-kernel-driver-into-memory)
+  - [maps your driver into kernel space](#maps-your-driver-into-kernel-space)
+  - [manually calls your DriverEntry](#manually-calls-your-driverentry)
+- [[+] kdmapper in action](#-kdmapper-in-action)
+- [[-] It's detectable](#--its-detectable)
+- [Conclusion](#conclusion)
+
 ## What is kernel driver?
 
 Kernel drivers are specialized programs that operate differently from typical user applications.
@@ -40,7 +53,7 @@ Even if you can develop a kernel driver, you cannot load it immediately - Window
 
 __So u can't load your driver? No, you still can. This signing system has a significant flaw. Let me explain later.
 
-## [+] dark magic: kdmapper
+## [+] Dark arts: kdmapper
 
 kdmapper is a user mode application to load your unsigned kernel driver onto your computer using volunerable signed kernel driver called `iqvw64e.sys` which is an old version of network diagnosis driver developed by Intel.
 
@@ -50,17 +63,17 @@ I wouldn't say kdmapper is undetected cuz it has been open sourced quite a while
 
 But now, let's take a close look at how kdmapper load your driver to kernel memory!
 
-## [+] process of mapping
+## [+] Process of mapping
 
 Its mapping process can be broken down into those steps:
 
-- load `iqvw64e.sys`
-- remove it's trace for additional stealthiness
-- read raw data of your kernel driver into memory
-- map your driver into kernel space
-- manually call your DriverEntry
+- loads `iqvw64e.sys`
+- removes it's trace for additional stealthiness
+- reads raw data of your kernel driver into memory
+- maps your driver into kernel space
+- manually calls your DriverEntry
 
-#### load iqvw64e.sys
+#### loads iqvw64e.sys
 First, it loads `iqvw64e.sys` inside [service::RegisterAndStart](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/service.cpp#L3) function. It sets up corresponding registries first and then uses native NT API NtLoadDriver like this.
 
 ```cpp
@@ -85,16 +98,23 @@ Status = NtLoadDriver(&serviceStr);
 ```
 {: file='kdmapper/service.cpp'}
 
-#### remove it's trace for additional stealthiness
+#### removes it's trace for additional stealthiness
 
 After that it tries to remove some traces that anti-cheat is checking in [intel_driver::Load()](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/intel_driver.cpp#L32).
 
 Each of the function does following
 
-- `ClearPiDDBCacheTable`: clearing driver name from list of drivers in `ntoskrnl.exe`. driver name'll be added when you load one.
-- `ClearKernelHashBucketList`: deleting driver name and hash of driver certificate from particular list in `ci.dll`
-- `ClearMmUnloadedDrivers`: deleting driver name to prevent kernel from remember and add to unloaded driver list.
-- `ClearWdFilterDriverList`: unlinking driver name from a linked list in `WdFilter.sys` which holds all running drivers.
+ClearPiDDBCacheTable
+: clearing driver name from list of drivers in `ntoskrnl.exe`. driver name'll be added when you load one
+
+ClearKernelHashBucketList
+: deleting driver name and hash of driver certificate from particular list in `ci.dll`
+
+ClearMmUnloadedDrivers
+: deleting driver name to prevent kernel from remember and add to unloaded driver list
+
+ClearWdFilterDriverList
+: unlinking driver name from a linked list in `WdFilter.sys` which holds all running drivers
 
 ```cpp
 if (!intel_driver::ClearPiDDBCacheTable(result)) {
@@ -124,7 +144,7 @@ if (!intel_driver::ClearWdFilterDriverList(result)) {
 {: file='kdmapper/intel_driver.cpp'}
 
 
-#### read raw data of your kernel driver into memory
+#### reads raw data of your kernel driver into memory
 
 Then it read your binary data into memory to calculate image size and header size from its nt header.
 
@@ -152,7 +172,7 @@ image_size = image_size - (destroyHeader ? TotalVirtualHeaderSize : 0);
 ```
 {: file='kdmapper/main.cpp'}
 
-#### map your driver into kernel space
+#### maps your driver into kernel space
 
 [kdmapper::MapDriver](https://github.com/TheCruZ/kdmapper/blob/30f3282a2c0e867ab24180fccfc15cc9b819ebea/kdmapper/kdmapper.cpp#L73) function is responsible of actual driver mapping.
 
@@ -173,7 +193,7 @@ if (!intel_driver::WriteMemory(iqvw64e_device_handle, realBase, (PVOID)((uintptr
 {: file='kdmapper/kdmapper.cpp'}
 
 
-#### manually call your DriverEntry
+#### manually calls your DriverEntry
 
 Finally it calls your custom DriverEntry.
 
@@ -283,8 +303,6 @@ There you go! your driver will be mapped in your kernel!
 
 Well...unless you configure it well.
 
-
-
 The thing is anti cheats has suspicious drivers list and periodically check if known volunerable drivers have been loaded and `iqvw64e.sys` is one of them.
 You have to exploit your own driver which is capable of read and write memory or some alternative APIs like MmMapIoSpace/MmUnmapIoSpace or ZwMapViewOfSection/ZwUnmapViewOfSection. This is called Bring Your Own Volunerable Driver, in short BYOVD lol.
 
@@ -295,7 +313,7 @@ Moreover using APIs like KeStackAttachProcess or setting NMI callbacks and stuff
 
 Hence, you have to learn or reverse engineer anti cheat and know what it's monitoring.
 
-## conclusion
+## Conclusion
 
 ![footer](footer.jpg)
 

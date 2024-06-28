@@ -26,6 +26,18 @@ Even though the obfuscator is open-source software, I thought it would be boring
 > Spoiler alert！: The key verification logic in this program is actually straightforward when viewed in a debugger. **However, I believe the author intended this to be a fun challenge with obfuscation**, so I won't take the easiest route by simply tracing back from the final cmp instruction. Instead, mess around with the obfuscation on purpose in this blog post! lol
 {: .prompt-warning }
 
+## Table of Contents
+
+- [The program](#the-program)
+- [[+] Unpack it first](#-unpack-it-first)
+- [[+] Static analysis and locate obfuscation technique](#-static-analysis-and-locate-obfuscation-technique)
+- [[+] Planning](#-planning)
+- [[+] Taking down obfuscated jmps](#-taking-down-obfuscated-jmps)
+- [[+] Reconstruct grieved subroutines](#-reconstruct-grieved-subroutines)
+- [[+] Removing pointless function calling](#-removing-pointless-function-calling)
+- [[+] Take a look at keygen logic](#-take-a-look-at-keygen-logic)
+- [Conclusion](#conclusion)
+
 ## The program
 
 The program of the challenge is a simple keygenme. A Prompt "password >>>" shows up upon run.

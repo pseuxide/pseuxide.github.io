@@ -17,7 +17,14 @@ I recently tested several possible ways to speed up Rust development with docker
 
 The corresponding repository introduced in this article is this: [vxcall/dockerized-rust-hot-reload](https://github.com/vxcall/dockerized-rust-hot-reload)
 
-## initial idea: docker compose watch (turned out 2b slow)
+## Table of Contents
+
+- [Initial idea: docker compose watch](#initial-idea-docker-compose-watch)
+- [The best idea: mold + cargo-watch](#the-best-idea-mold--cargo-watch)
+  - [Practical example: dockerized server code](#practical-example-dockerized-server-code)
+- [Conclusion](#conclusion)
+
+## Initial idea: docker compose watch
 
 October 2023, [docker compose watch](https://docs.docker.com/compose/file-watch/) has been publicly released which allows docker compose to take certain 3 actions on specific file changes.
 
@@ -47,7 +54,7 @@ about `action:`, there're 3 types of action you can hook:
 
 This compose's new feature seems great, however turns out rebuilding everytime is significantly slow and it can't be a good friend for web backend development considering the number of times you save files. (of course)
 
-## the best idea: mold + cargo-watch (blazingly fast)
+## The best idea: mold + cargo-watch
 
 In my quest for efficiency, I've discovered the most time-saving approach to automatically recompile Rust code. This method involves leveraging [cargo-watch](https://crates.io/crates/cargo-watch) in tandem with [mold](https://github.com/rui314/mold).
 
@@ -77,7 +84,7 @@ cargo watch -s 'mold -run cargo run'
 
 that'd be it. Let's see how it goes with real example in next section.
 
-### Practical example: dockerized server code
+#### Practical example: dockerized server code
 
 Let's go even further, here I brought the simplest rust server code as well as Docker-related files. (I personally wanted to develop in docker to encapsulate every dependencies.)
 

@@ -16,12 +16,14 @@ Since this is the first article of my blog, I start with relatively very simple 
 
 So in this post I'll be talking about how you can call functions defined in independent assembly file from C++.
 
-## Target reader
+## Table of Contents
 
-Those who:
-- can read assembly
-- can read/write C++
-- wonder how to utilize assembly with C++
+- [Background and expected environment](#background-and-expected-environment)
+- [How to do it?](#how-to-do-it)
+  - [C++ side](#c-side)
+  - [Assembly side](#assembly-side)
+  - [Visual Studio side](#visual-studio-side)
+- [Conclusion](#conclusion)
 
 ## Background and expected environment
 
